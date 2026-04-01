@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(printf 'y\\\\n')",
+      "Bash(npx create-vite@latest . --template react-ts)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(supabase --version)",
+      "Bash(npx supabase:*)",
+      "Bash(supabase init:*)",
+      "Bash(SUPABASE_ACCESS_TOKEN=\"sbp_a023b113e230fac394f977f6b6b1259867565b12\" npx supabase link --project-ref tuucbxdaiclbyzrzhava)"
+    ]
+  }
+}
