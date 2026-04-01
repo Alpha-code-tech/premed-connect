@@ -128,53 +128,33 @@ export default function StudentPayments() {
             studentName: profileSnapshot.full_name,
             studentEmail: profileSnapshot.email,
           }
-
-          supabase.from('payments')
-            .update({
-              status: 'successful',
-              paystack_reference: response.reference,
-              receipt_url: response.reference, // store reference; receipt shown in-app
-              amount: item.amount,
-            })
-            .eq('student_id', profileSnapshot.id)
-            .eq('payment_item_id', item.id)
-            .select()
-            .then(({ data: updated, error: updateErr }) => {
-              if (updateErr) console.error('[Payment save] UPDATE error:', updateErr)
-              if (updated && updated.length > 0) {
-                afterSave()
-                return
-              }
-              supabase.from('payments').insert({
-                student_id: profileSnapshot.id,
-                payment_item_id: item.id,
-                amount: item.amount,
-                status: 'successful',
-                paystack_reference: response.reference,
-                receipt_url: response.reference,
-              }).select().then(({ error: insertErr }) => {
-                if (insertErr) {
-                  console.error('[Payment save] INSERT error:', insertErr)
-                  toast({ title: 'Save failed', description: insertErr.message, variant: 'destructive' })
-                  return
-                }
-                afterSave()
+          // Verify payment server-side before recording
+          ;(async () => {
+            try {
+              const { error: fnErr } = await supabase.functions.invoke('verify-payment', {
+                body: {
+                  reference: response.reference,
+                  payment_item_id: item.id,
+                  amount: item.amount,
+                },
               })
-            })
+              if (fnErr) throw new Error(fnErr.message)
 
-          function afterSave() {
-            sendReceiptNotifications(item.id, item.title, item.amount, profileSnapshot.full_name)
-            queryClient.refetchQueries({ queryKey: ['student-payments'], type: 'active' })
-            queryClient.refetchQueries({ queryKey: ['student-pending-payments'], type: 'active' })
-            queryClient.invalidateQueries({ queryKey: ['governor-payments'] })
-            queryClient.invalidateQueries({ queryKey: ['financial-all-payments'] })
-            queryClient.invalidateQueries({ queryKey: ['financial-stats'] })
-            queryClient.invalidateQueries({ queryKey: ['financial-recent'] })
-            queryClient.invalidateQueries({ queryKey: ['governor-stats'] })
-            queryClient.invalidateQueries({ queryKey: ['courserep-payments'] })
-            setReceipt(receiptData)
-          }
-          toast({ title: 'Payment successful', description: 'Your payment has been recorded.' })
+              sendReceiptNotifications(item.id, item.title, item.amount, profileSnapshot.full_name)
+              queryClient.refetchQueries({ queryKey: ['student-payments'], type: 'active' })
+              queryClient.refetchQueries({ queryKey: ['student-pending-payments'], type: 'active' })
+              queryClient.invalidateQueries({ queryKey: ['governor-payments'] })
+              queryClient.invalidateQueries({ queryKey: ['financial-all-payments'] })
+              queryClient.invalidateQueries({ queryKey: ['financial-stats'] })
+              queryClient.invalidateQueries({ queryKey: ['financial-recent'] })
+              queryClient.invalidateQueries({ queryKey: ['governor-stats'] })
+              queryClient.invalidateQueries({ queryKey: ['courserep-payments'] })
+              setReceipt(receiptData)
+              toast({ title: 'Payment successful', description: 'Your payment has been recorded.' })
+            } catch (e) {
+              toast({ title: 'Payment verification failed', description: (e as Error).message, variant: 'destructive' })
+            }
+          })()
         },
         onClose: () => setPaying(null),
       })

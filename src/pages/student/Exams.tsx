@@ -92,7 +92,7 @@ export default function StudentExams() {
 
   useEffect(() => {
     if (storageKey && Object.keys(answers).length > 0) {
-      localStorage.setItem(storageKey, JSON.stringify(answers))
+      sessionStorage.setItem(storageKey, JSON.stringify(answers))
     }
   }, [answers, storageKey])
 
@@ -183,7 +183,7 @@ export default function StudentExams() {
     },
     onSuccess: (data) => {
       setResult(data)
-      if (storageKey) localStorage.removeItem(storageKey)
+      if (storageKey) sessionStorage.removeItem(storageKey)
       queryClient.invalidateQueries({ queryKey: ['student-attempts'] })
     },
     onError: (e: Error) =>
@@ -254,8 +254,8 @@ export default function StudentExams() {
       return
     }
 
-    // Restore any saved answers from a previous interrupted session
-    const saved = localStorage.getItem(`exam_answers_${test.id}`)
+    // Restore any saved answers from a previous interrupted session (tab-scoped only)
+    const saved = sessionStorage.getItem(`exam_answers_${test.id}`)
     const savedAnswers: Record<string, string> = saved ? JSON.parse(saved) : {}
 
     setActiveTest(test)

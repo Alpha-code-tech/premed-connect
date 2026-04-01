@@ -1,8 +1,18 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const APP_URL = Deno.env.get('APP_URL') ?? 'http://localhost:5173'
+
+function corsHeaders(req: Request) {
+  const origin = req.headers.get('origin') ?? ''
+  const isAllowed =
+    origin === APP_URL ||
+    origin === 'http://localhost:5173' ||
+    origin === 'http://localhost:3000' ||
+    origin.endsWith('.vercel.app')
+  return {
+    'Access-Control-Allow-Origin': isAllowed ? origin : APP_URL,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  }
 }
 
 async function sendWelcomeEmail(
@@ -69,7 +79,7 @@ async function sendWelcomeEmail(
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders(req) })
   }
 
   try {
@@ -77,7 +87,7 @@ Deno.serve(async (req) => {
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })
     }
 
@@ -94,7 +104,7 @@ Deno.serve(async (req) => {
     if (callerError || !caller) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })
     }
     const { data: callerProfile } = await supabaseAdmin
@@ -105,7 +115,7 @@ Deno.serve(async (req) => {
     if (callerProfile?.role !== 'developer') {
       return new Response(JSON.stringify({ error: 'Forbidden: developer role required' }), {
         status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })
     }
 
@@ -114,7 +124,7 @@ Deno.serve(async (req) => {
     if (!email || !password || !full_name || !role) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })
     }
 
@@ -127,7 +137,7 @@ Deno.serve(async (req) => {
     if (authError) {
       return new Response(JSON.stringify({ error: authError.message }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })
     }
 
@@ -146,25 +156,25 @@ Deno.serve(async (req) => {
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
       return new Response(JSON.stringify({ error: profileError.message }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })
     }
 
     // Send welcome email with temporary password via Resend (non-fatal if it fails)
     const resendKey = Deno.env.get('RESEND_API_KEY')
-    const appUrl = Deno.env.get('APP_URL') ?? 'https://premedconnect.com'
+    const appUrl = APP_URL
     if (resendKey) {
       await sendWelcomeEmail(resendKey, email, full_name, password, role, appUrl)
     }
 
     return new Response(JSON.stringify({ user_id: authData.user.id }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
     })
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
     })
   }
 })
