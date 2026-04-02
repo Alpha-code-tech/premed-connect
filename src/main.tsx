@@ -11,11 +11,16 @@ import { Toaster } from './components/ui/toaster.tsx'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0,           // always re-fetch — never serve stale data from cache
-      gcTime: 1000 * 60 * 2, // discard unused cache after 2 min
+      staleTime: 0,
+      gcTime: 1000 * 60 * 2,
       retry: 1,
       refetchOnWindowFocus: true,
       refetchOnMount: true,
+    },
+    mutations: {
+      // Auto-reset mutation state 3 seconds after success or failure
+      // so buttons never stay stuck in a loading state
+      gcTime: 3000,
     },
   },
 })

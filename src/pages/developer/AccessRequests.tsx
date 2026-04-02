@@ -52,9 +52,13 @@ function statusVariant(status: RequestStatus): StatusVariant {
 
 async function invokeFn(name: string, body: object) {
   const { data: { session } } = await supabase.auth.getSession()
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15000)
+  try {
   const { error } = await supabase.functions.invoke(name, {
     body,
     headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+    signal: controller.signal,
   })
   if (error) {
     let message = error.message
@@ -65,6 +69,9 @@ async function invokeFn(name: string, body: object) {
       } catch { /* ignore */ }
     }
     throw new Error(message)
+  }
+  } finally {
+    clearTimeout(timeout)
   }
 }
 

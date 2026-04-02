@@ -45,19 +45,29 @@ const PAGE_SIZE = 20
 
 async function invokeFn(name: string, body: object) {
   const { data: { session } } = await supabase.auth.getSession()
-  const { error } = await supabase.functions.invoke(name, {
-    body,
-    headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
-  })
-  if (error) {
-    let message = error.message
-    if (error instanceof FunctionsHttpError) {
-      try {
-        const body = await error.context.json()
-        message = body.error || message
-      } catch { /* ignore parse error */ }
+
+  // 15-second timeout so the UI never hangs indefinitely
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15000)
+
+  try {
+    const { error } = await supabase.functions.invoke(name, {
+      body,
+      headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+      signal: controller.signal,
+    })
+    if (error) {
+      let message = error.message
+      if (error instanceof FunctionsHttpError) {
+        try {
+          const b = await error.context.json()
+          message = b.error || message
+        } catch { /* ignore parse error */ }
+      }
+      throw new Error(message)
     }
-    throw new Error(message)
+  } finally {
+    clearTimeout(timeout)
   }
 }
 
