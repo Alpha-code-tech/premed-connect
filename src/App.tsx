@@ -3,6 +3,9 @@ import { useAuth } from '@/context/AuthContext'
 import { useViewMode } from '@/context/ViewModeContext'
 import { ROLE_ROUTES } from '@/lib/constants'
 
+// Landing page
+import Landing from '@/pages/Landing'
+
 // Auth pages
 import Login from '@/pages/auth/Login'
 import RequestAccess from '@/pages/auth/RequestAccess'
@@ -119,6 +122,9 @@ export default function App() {
 
   return (
     <Routes>
+      {/* Landing page */}
+      <Route path="/" element={<Landing />} />
+
       {/* Public routes */}
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/request-access" element={<PublicRoute><RequestAccess /></PublicRoute>} />
