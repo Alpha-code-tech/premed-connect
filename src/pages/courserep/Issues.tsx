@@ -36,12 +36,24 @@ export default function CourseRepIssues() {
   const { data: issues, isLoading } = useQuery({
     queryKey: ['courserep-issues'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: issuesData, error } = await supabase
         .from('issues')
-        .select('*, profiles!student_id(full_name, email)')
+        .select('*')
         .order('created_at', { ascending: false })
       if (error) throw error
-      return data as unknown as (Issue & { profiles: { full_name: string; email: string } | null })[]
+      if (!issuesData?.length) return []
+
+      const studentIds = [...new Set(issuesData.map(i => i.student_id))]
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', studentIds)
+
+      const profileMap = Object.fromEntries((profilesData ?? []).map(p => [p.id, p]))
+      return issuesData.map(issue => ({
+        ...issue,
+        profiles: profileMap[issue.student_id] ?? null,
+      })) as (Issue & { profiles: { full_name: string; email: string } | null })[]
     },
   })
 
