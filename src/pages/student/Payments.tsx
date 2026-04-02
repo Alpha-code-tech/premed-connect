@@ -131,12 +131,14 @@ export default function StudentPayments() {
           // Verify payment server-side before recording
           ;(async () => {
             try {
+              const { data: { session: pmtSession } } = await supabase.auth.getSession()
               const { error: fnErr } = await supabase.functions.invoke('verify-payment', {
                 body: {
                   reference: response.reference,
                   payment_item_id: item.id,
                   amount: item.amount,
                 },
+                headers: pmtSession ? { Authorization: `Bearer ${pmtSession.access_token}` } : {},
               })
               if (fnErr) throw new Error(fnErr.message)
 

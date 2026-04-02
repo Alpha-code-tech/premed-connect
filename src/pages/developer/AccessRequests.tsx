@@ -51,7 +51,11 @@ function statusVariant(status: RequestStatus): StatusVariant {
 }
 
 async function invokeFn(name: string, body: object) {
-  const { error } = await supabase.functions.invoke(name, { body })
+  const { data: { session } } = await supabase.auth.getSession()
+  const { error } = await supabase.functions.invoke(name, {
+    body,
+    headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+  })
   if (error) {
     let message = error.message
     if (error instanceof FunctionsHttpError) {
