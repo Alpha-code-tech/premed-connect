@@ -145,8 +145,8 @@ function Hero() {
               className="rounded-full bg-white text-brand-primary hover:bg-white/90 font-semibold px-8">
               <Link to="/login">Sign In to Portal</Link>
             </Button>
-            <Button asChild size="lg" variant="outline"
-              className="rounded-full border-white/30 text-white hover:bg-white/10 px-8">
+            <Button asChild size="lg"
+              className="rounded-full bg-white/15 border border-white/40 text-white hover:bg-white/25 px-8">
               <a href="#features">Explore Features</a>
             </Button>
           </div>
@@ -249,8 +249,7 @@ function DepartmentsTicker() {
       <div className="relative">
         <InfiniteSlider speed={35} gap={64}>
           {DEPARTMENTS.map(dept => (
-            <span key={dept} className="flex items-center gap-2 text-sm font-medium text-brand-grey whitespace-nowrap">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-primary" />
+            <span key={dept} className="text-sm font-medium text-brand-grey whitespace-nowrap">
               {dept}
             </span>
           ))}
