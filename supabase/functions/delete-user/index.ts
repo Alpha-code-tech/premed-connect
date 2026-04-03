@@ -15,6 +15,34 @@ function corsHeaders(req: Request) {
   }
 }
 
+async function checkRateLimit(
+  admin: ReturnType<typeof createClient>,
+  userId: string,
+  action: string,
+  maxRequests: number,
+  windowMinutes: number
+): Promise<boolean> {
+  const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString()
+  const { data: existing } = await admin
+    .from('rate_limits')
+    .select('id, request_count, window_start')
+    .eq('user_id', userId)
+    .eq('action', action)
+    .maybeSingle()
+
+  if (!existing) {
+    await admin.from('rate_limits').insert({ user_id: userId, action, request_count: 1, window_start: new Date().toISOString() })
+    return true
+  }
+  if (existing.window_start < windowStart) {
+    await admin.from('rate_limits').update({ request_count: 1, window_start: new Date().toISOString() }).eq('id', existing.id)
+    return true
+  }
+  if (existing.request_count >= maxRequests) return false
+  await admin.from('rate_limits').update({ request_count: existing.request_count + 1 }).eq('id', existing.id)
+  return true
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders(req) })
@@ -53,6 +81,15 @@ Deno.serve(async (req) => {
     if (callerProfile?.role !== 'developer') {
       return new Response(JSON.stringify({ error: 'Forbidden: developer role required' }), {
         status: 403,
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Rate limit: max 20 deletions per hour per developer
+    const allowed = await checkRateLimit(supabaseAdmin, caller.id, 'delete-user', 20, 60)
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: 'Rate limit exceeded. Max 20 deletions per hour.' }), {
+        status: 429,
         headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })
     }
