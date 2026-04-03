@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { CreditCard, Clock, CheckCircle, AlertCircle, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useEffectiveDepartmentId } from '@/context/ViewModeContext'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -75,19 +76,20 @@ interface ReceiptData {
 
 export default function StudentPayments() {
   const { profile } = useAuth()
+  const effectiveDeptId = useEffectiveDepartmentId(profile?.department_id)
   const queryClient = useQueryClient()
   const { toast } = useToast()
   const [paying, setPaying] = useState<string | null>(null)
   const [receipt, setReceipt] = useState<ReceiptData | null>(null)
 
   const { data: paymentData, isLoading } = useQuery({
-    queryKey: ['student-payments', profile?.id, profile?.department_id],
+    queryKey: ['student-payments', profile?.id, effectiveDeptId],
     enabled: !!profile,
     queryFn: async () => {
       const { data: items } = await supabase
         .from('payment_items')
         .select('*')
-        .or(`department_id.is.null,department_id.eq.${profile!.department_id}`)
+        .or(`department_id.is.null${effectiveDeptId ? `,department_id.eq.${effectiveDeptId}` : ''}`)
         .order('deadline')
       const { data: payments } = await supabase
         .from('payments')

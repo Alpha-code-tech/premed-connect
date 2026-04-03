@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Plus, AlertCircle, Trash2, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useEffectiveDepartmentId } from '@/context/ViewModeContext'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -54,6 +55,7 @@ type IssueForm = z.infer<typeof issueSchema>
 
 export default function StudentIssues() {
   const { profile } = useAuth()
+  const effectiveDeptId = useEffectiveDepartmentId(profile?.department_id)
   const queryClient = useQueryClient()
   const { toast } = useToast()
   const [open, setOpen] = useState(false)

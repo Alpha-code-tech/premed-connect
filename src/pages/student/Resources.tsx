@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Search, Download, ExternalLink, File, FileText, Image, BookOpen, Link } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useEffectiveDepartmentId } from '@/context/ViewModeContext'
 import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -22,18 +23,19 @@ function getFileIcon(fileType: string) {
 export default function StudentResources() {
   const { profile } = useAuth()
   const { toast } = useToast()
+  const effectiveDeptId = useEffectiveDepartmentId(profile?.department_id)
   const [search, setSearch] = useState('')
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [opening, setOpening] = useState<string | null>(null)
 
   const { data: resources, isLoading } = useQuery({
-    queryKey: ['student-resources', profile?.department_id],
+    queryKey: ['student-resources', effectiveDeptId],
     enabled: !!profile,
     queryFn: async () => {
       const { data } = await supabase
         .from('resources')
         .select('*')
-        .or(`visibility.eq.all,and(visibility.eq.department,department_id.eq.${profile!.department_id})`)
+        .or(`visibility.eq.all${effectiveDeptId ? `,and(visibility.eq.department,department_id.eq.${effectiveDeptId})` : ''}`)
         .order('created_at', { ascending: false })
       return data || []
     },

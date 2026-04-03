@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { CreditCard, Bell, BookOpen, Calendar, Megaphone } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useEffectiveDepartmentId } from '@/context/ViewModeContext'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +10,7 @@ import { formatDateShort } from '@/lib/utils'
 
 export default function StudentDashboard() {
   const { profile } = useAuth()
+  const effectiveDeptId = useEffectiveDepartmentId(profile?.department_id)
 
   const { data: pendingPayments, isLoading: paymentsLoading } = useQuery({
     queryKey: ['student-pending-payments', profile?.id],
@@ -17,7 +19,7 @@ export default function StudentDashboard() {
       const { data: paymentItems } = await supabase
         .from('payment_items')
         .select('id')
-        .or(`department_id.is.null,department_id.eq.${profile!.department_id}`)
+        .or(`department_id.is.null${effectiveDeptId ? `,department_id.eq.${effectiveDeptId}` : ''}`)
       if (!paymentItems?.length) return 0
       const { data: paid } = await supabase
         .from('payments')
@@ -43,13 +45,13 @@ export default function StudentDashboard() {
   })
 
   const { data: announcements, isLoading: announcementsLoading } = useQuery({
-    queryKey: ['student-announcements', profile?.department_id],
+    queryKey: ['student-announcements', effectiveDeptId],
     enabled: !!profile,
     queryFn: async () => {
       const { data } = await supabase
         .from('announcements')
         .select('*')
-        .or(`department_id.is.null,department_id.eq.${profile!.department_id}`)
+        .or(`department_id.is.null${effectiveDeptId ? `,department_id.eq.${effectiveDeptId}` : ''}`)
         .order('created_at', { ascending: false })
         .limit(5)
       return data || []
@@ -57,13 +59,13 @@ export default function StudentDashboard() {
   })
 
   const { data: resources, isLoading: resourcesLoading } = useQuery({
-    queryKey: ['student-recent-resources', profile?.department_id],
+    queryKey: ['student-recent-resources', effectiveDeptId],
     enabled: !!profile,
     queryFn: async () => {
       const { data } = await supabase
         .from('resources')
         .select('*')
-        .or(`visibility.eq.all,and(visibility.eq.department,department_id.eq.${profile!.department_id})`)
+        .or(`visibility.eq.all${effectiveDeptId ? `,and(visibility.eq.department,department_id.eq.${effectiveDeptId})` : ''}`)
         .order('created_at', { ascending: false })
         .limit(5)
       return data || []
@@ -87,10 +89,10 @@ export default function StudentDashboard() {
   })
 
   const { data: department } = useQuery({
-    queryKey: ['department', profile?.department_id],
-    enabled: !!profile?.department_id,
+    queryKey: ['department', effectiveDeptId],
+    enabled: !!effectiveDeptId,
     queryFn: async () => {
-      const { data } = await supabase.from('departments').select('name').eq('id', profile!.department_id!).single()
+      const { data } = await supabase.from('departments').select('name').eq('id', effectiveDeptId!).single()
       return data
     },
   })
