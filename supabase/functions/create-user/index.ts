@@ -33,7 +33,7 @@ async function sendWelcomeEmail(
   }
 
   const body = {
-    from: 'PreMed Connect <onboarding@resend.dev>',
+    from: 'PreMed Connect <noreply@premedconnect.xyz>',
     to: [to],
     subject: 'Your PreMed Connect Account is Ready',
     html: `
