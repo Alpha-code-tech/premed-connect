@@ -22,7 +22,12 @@ export default function CourseRepPayments() {
 
   const deleteBillMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('payment_items').delete().eq('id', id)
+      // Ownership check: only delete bills that belong to this rep's department
+      const { error } = await supabase
+        .from('payment_items')
+        .delete()
+        .eq('id', id)
+        .eq('department_id', profile!.department_id!)
       if (error) throw error
     },
     onSuccess: () => {
@@ -52,11 +57,15 @@ export default function CourseRepPayments() {
     queryKey: ['courserep-payments', profile?.department_id],
     enabled: !!profile,
     queryFn: async () => {
-      const [{ data: students }, { data: items }, { data: payments }] = await Promise.all([
+      // Fetch students and items first; payments are then scoped to only these students
+      const [{ data: students }, { data: items }] = await Promise.all([
         supabase.from('profiles').select('id, full_name, student_id').eq('department_id', profile!.department_id!).eq('role', 'student').order('full_name'),
         supabase.from('payment_items').select('*').or(`department_id.is.null,department_id.eq.${profile!.department_id!}`).order('deadline'),
-        supabase.from('payments').select('student_id, payment_item_id, status'),
       ])
+      const studentIds = (students ?? []).map(s => s.id)
+      const { data: payments } = studentIds.length
+        ? await supabase.from('payments').select('student_id, payment_item_id, status').in('student_id', studentIds)
+        : { data: [] }
       const paymentMap = new Map<string, string>()
       payments?.forEach(p => paymentMap.set(`${p.student_id}-${p.payment_item_id}`, p.status))
       return { students: students || [], items: items || [], paymentMap }

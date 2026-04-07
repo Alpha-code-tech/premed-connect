@@ -54,6 +54,12 @@ export default function StudentProfile() {
     if (!file || !profile) return
     if (!['image/png', 'image/jpeg'].includes(file.type)) {
       toast({ title: 'Invalid file type', description: 'Please upload a PNG or JPG image.', variant: 'destructive' })
+      e.target.value = ''
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Avatar must be under 2MB.', variant: 'destructive' })
+      e.target.value = ''
       return
     }
     setUploadingAvatar(true)

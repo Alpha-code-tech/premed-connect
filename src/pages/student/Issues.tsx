@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { formatDateShort } from '@/lib/utils'
+import { validateFile, mimeToExtension } from '@/lib/validation'
 import { ISSUE_CATEGORIES } from '@/lib/constants'
 
 const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024
@@ -45,10 +46,14 @@ function parseDescription(raw: string): { recipient: string | null; description:
   return { recipient: null, description: raw }
 }
 
+const ALLOWED_ATTACHMENT_TYPES = ['application/pdf', 'image/png', 'image/jpeg']
+
 const issueSchema = z.object({
   recipient: z.string().min(1, 'Please select a recipient'),
   category: z.string().min(1, 'Please select a category'),
-  description: z.string().min(20, 'Description must be at least 20 characters'),
+  description: z.string()
+    .min(20, 'Description must be at least 20 characters')
+    .max(5000, 'Description cannot exceed 5000 characters'),
 })
 
 type IssueForm = z.infer<typeof issueSchema>
@@ -96,12 +101,10 @@ export default function StudentIssues() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (!['application/pdf', 'image/png', 'image/jpeg'].includes(file.type)) {
-      toast({ title: 'Invalid file type', description: 'Allowed: PDF, PNG, JPG', variant: 'destructive' })
-      return
-    }
-    if (file.size > MAX_ATTACHMENT_SIZE) {
-      toast({ title: 'File too large', description: 'Maximum 5MB', variant: 'destructive' })
+    const err = validateFile(file, ALLOWED_ATTACHMENT_TYPES, MAX_ATTACHMENT_SIZE)
+    if (err) {
+      toast({ title: 'Invalid file', description: err, variant: 'destructive' })
+      e.target.value = ''
       return
     }
     setAttachmentFile(file)
@@ -113,7 +116,9 @@ export default function StudentIssues() {
       let attachmentUrl: string | null = null
 
       if (attachmentFile) {
-        const ext = attachmentFile.name.split('.').pop()
+        // Derive extension from MIME type — never from the user-controlled filename
+        const ext = mimeToExtension(attachmentFile.type)
+        if (!ext) throw new Error('Unsupported file type')
         const path = `issues/${profile!.id}-${Date.now()}.${ext}`
         const { error: uploadError } = await supabase.storage.from('issues').upload(path, attachmentFile)
         if (uploadError) throw uploadError

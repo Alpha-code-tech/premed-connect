@@ -20,8 +20,14 @@ type LoginFormData = z.infer<typeof loginSchema>
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [attemptCount, setAttemptCount] = useState(0)
-  const [lockoutUntil, setLockoutUntil] = useState<Date | null>(null)
+  const [attemptCount, setAttemptCount] = useState(() => {
+    const stored = sessionStorage.getItem('login_attempts')
+    return stored ? parseInt(stored, 10) : 0
+  })
+  const [lockoutUntil, setLockoutUntil] = useState<Date | null>(() => {
+    const stored = sessionStorage.getItem('login_lockout_until')
+    return stored ? new Date(stored) : null
+  })
   const { toast } = useToast()
 
   const form = useForm<LoginFormData>({
@@ -42,17 +48,22 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password })
     setIsLoading(false)
 
-    if (error) {
-      const newCount = attemptCount + 1
-      setAttemptCount(newCount)
-      if (newCount >= 5) {
-        const lockout = new Date(Date.now() + 60000)
-        setLockoutUntil(lockout)
-        toast({ title: 'Account temporarily locked', description: 'Too many failed attempts. Please wait 1 minute before trying again.', variant: 'destructive' })
-      } else {
-        toast({ title: 'Login failed', description: 'Invalid email or password. Please try again.', variant: 'destructive' })
-      }
+    if (!error) {
+      sessionStorage.removeItem('login_attempts')
+      sessionStorage.removeItem('login_lockout_until')
       return
+    }
+
+    const newCount = attemptCount + 1
+    setAttemptCount(newCount)
+    sessionStorage.setItem('login_attempts', String(newCount))
+    if (newCount >= 5) {
+      const lockout = new Date(Date.now() + 60000)
+      setLockoutUntil(lockout)
+      sessionStorage.setItem('login_lockout_until', lockout.toISOString())
+      toast({ title: 'Account temporarily locked', description: 'Too many failed attempts. Please wait 1 minute before trying again.', variant: 'destructive' })
+    } else {
+      toast({ title: 'Login failed', description: 'Invalid email or password.', variant: 'destructive' })
     }
   }
 

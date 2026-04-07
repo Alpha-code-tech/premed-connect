@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { generatePassword, formatDateShort } from '@/lib/utils'
+import { sanitizeCsvCell } from '@/lib/validation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -201,10 +202,14 @@ export default function DeveloperAccessRequests() {
   })
 
   const exportCSV = () => {
-    const rows = filtered.map(
-      (r) =>
-        `"${r.full_name}","${deptMap[r.department_id] || r.department_id}","${r.matriculation_number}","${r.gmail}","${r.status}","${formatDateShort(r.submitted_at)}"`
-    )
+    const rows = filtered.map((r) => [
+      sanitizeCsvCell(r.full_name),
+      sanitizeCsvCell(deptMap[r.department_id] || r.department_id),
+      sanitizeCsvCell(r.matriculation_number),
+      sanitizeCsvCell(r.gmail),
+      sanitizeCsvCell(r.status),
+      sanitizeCsvCell(formatDateShort(r.submitted_at)),
+    ].map(cell => `"${cell}"`).join(','))
     const csv = 'Full Name,Department,Matric Number,Gmail,Status,Date\n' + rows.join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)

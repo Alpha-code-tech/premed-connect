@@ -62,6 +62,7 @@ export function useNotifications(studentId: string | undefined) {
       .from('notifications')
       .update({ is_read: true })
       .eq('id', notificationId)
+      .eq('student_id', studentId!)
     queryClient.invalidateQueries({ queryKey: ['notifications', studentId] })
     queryClient.invalidateQueries({ queryKey: ['student-unread-notifications', studentId] })
   }

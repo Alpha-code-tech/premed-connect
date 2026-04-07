@@ -70,8 +70,13 @@ export default function GovernorPayments() {
   const deptMap = Object.fromEntries((departments || []).map(d => [d.id, d.name]))
 
   const handleCreateBill = async () => {
-    if (!billForm.title || !billForm.amount || !billForm.deadline) {
+    const cleanTitle = billForm.title.trim().slice(0, 200)
+    if (!cleanTitle || !billForm.amount || !billForm.deadline) {
       toast({ title: 'All fields are required', variant: 'destructive' })
+      return
+    }
+    if (cleanTitle.length < 3) {
+      toast({ title: 'Title must be at least 3 characters', variant: 'destructive' })
       return
     }
     if (billForm.scope === 'department' && !billForm.department_id) {
@@ -83,9 +88,13 @@ export default function GovernorPayments() {
       toast({ title: 'Invalid amount', variant: 'destructive' })
       return
     }
+    if (amount > 10_000_000) {
+      toast({ title: 'Amount exceeds maximum allowed value', variant: 'destructive' })
+      return
+    }
     setSaving(true)
     const { error } = await supabase.from('payment_items').insert({
-      title: billForm.title,
+      title: cleanTitle,
       amount,
       deadline: billForm.deadline,
       department_id: billForm.scope === 'all' ? null : billForm.department_id,

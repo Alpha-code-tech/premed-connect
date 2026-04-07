@@ -34,22 +34,26 @@ export default function CourseRepIssues() {
   const [feedback, setFeedback] = useState('')
 
   const { data: issues, isLoading } = useQuery({
-    queryKey: ['courserep-issues'],
+    queryKey: ['courserep-issues', currentProfile?.department_id],
     queryFn: async () => {
+      // Scope issues to students in this rep's department only (IDOR prevention)
+      const { data: deptStudents } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('department_id', currentProfile!.department_id!)
+        .eq('role', 'student')
+      if (!deptStudents?.length) return []
+
+      const deptStudentIds = deptStudents.map(s => s.id)
       const { data: issuesData, error } = await supabase
         .from('issues')
         .select('*')
+        .in('student_id', deptStudentIds)
         .order('created_at', { ascending: false })
       if (error) throw error
       if (!issuesData?.length) return []
 
-      const studentIds = [...new Set(issuesData.map(i => i.student_id))]
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, full_name, email')
-        .in('id', studentIds)
-
-      const profileMap = Object.fromEntries((profilesData ?? []).map(p => [p.id, p]))
+      const profileMap = Object.fromEntries(deptStudents.map(p => [p.id, p]))
       return issuesData.map(issue => ({
         ...issue,
         profiles: profileMap[issue.student_id] ?? null,

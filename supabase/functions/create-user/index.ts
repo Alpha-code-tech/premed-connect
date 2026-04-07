@@ -1,4 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { checkCombinedRateLimit, getClientIp } from '../_shared/rate-limit.ts'
+import { isValidEmail, isValidUUID, safeText } from '../_shared/validate.ts'
 
 const APP_URL = Deno.env.get('APP_URL') ?? 'http://localhost:5173'
 
@@ -77,40 +79,6 @@ async function sendWelcomeEmail(
   }
 }
 
-// Rate limit: max requests per window per user
-async function checkRateLimit(
-  admin: ReturnType<typeof createClient>,
-  userId: string,
-  action: string,
-  maxRequests: number,
-  windowMinutes: number
-): Promise<boolean> {
-  const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString()
-
-  const { data: existing } = await admin
-    .from('rate_limits')
-    .select('id, request_count, window_start')
-    .eq('user_id', userId)
-    .eq('action', action)
-    .maybeSingle()
-
-  if (!existing) {
-    await admin.from('rate_limits').insert({ user_id: userId, action, request_count: 1, window_start: new Date().toISOString() })
-    return true
-  }
-
-  // Reset window if expired
-  if (existing.window_start < windowStart) {
-    await admin.from('rate_limits').update({ request_count: 1, window_start: new Date().toISOString() }).eq('id', existing.id)
-    return true
-  }
-
-  if (existing.request_count >= maxRequests) return false
-
-  await admin.from('rate_limits').update({ request_count: existing.request_count + 1 }).eq('id', existing.id)
-  return true
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders(req) })
@@ -153,19 +121,71 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Rate limit: max 300 user creations per hour per developer (allows bulk onboarding)
-    const allowed = await checkRateLimit(supabaseAdmin, caller.id, 'create-user', 300, 60)
+    // Combined rate limit: 300/hour per developer + 400/hour per IP
+    const ip = getClientIp(req)
+    const { allowed, reason } = await checkCombinedRateLimit(
+      supabaseAdmin, caller.id, ip, 'create-user', 300, 400, 60
+    )
     if (!allowed) {
-      return new Response(JSON.stringify({ error: 'Rate limit exceeded. Max 300 user creations per hour.' }), {
+      const message = reason === 'ip'
+        ? 'Too many requests from this network.'
+        : 'Rate limit exceeded. Max 300 user creations per hour.'
+      return new Response(JSON.stringify({ error: message }), {
         status: 429,
         headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })
     }
 
-    const { email, password, full_name, department_id, student_id, role } = await req.json()
+    const body = await req.json()
+    const { email, password, full_name, department_id, student_id, role } = body
 
     if (!email || !password || !full_name || !role) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (!isValidEmail(email)) {
+      return new Response(JSON.stringify({ error: 'Invalid email address' }), {
+        status: 400,
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (department_id !== undefined && department_id !== null && !isValidUUID(department_id)) {
+      return new Response(JSON.stringify({ error: 'Invalid department_id format' }), {
+        status: 400,
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Sanitize free-text fields
+    const safeFullName = safeText(full_name, 100)
+    const safeStudentId = student_id ? safeText(student_id, 50) : null
+    if (!safeFullName) {
+      return new Response(JSON.stringify({ error: 'Invalid full_name' }), {
+        status: 400,
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Server-side password complexity validation
+    const passwordErrors: string[] = []
+    if (password.length < 8) passwordErrors.push('at least 8 characters')
+    if (!/[A-Z]/.test(password)) passwordErrors.push('an uppercase letter')
+    if (!/[a-z]/.test(password)) passwordErrors.push('a lowercase letter')
+    if (!/[0-9]/.test(password)) passwordErrors.push('a number')
+    if (passwordErrors.length > 0) {
+      return new Response(JSON.stringify({ error: `Password must contain: ${passwordErrors.join(', ')}` }), {
+        status: 400,
+        headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
+      })
+    }
+
+    const validRoles = ['student', 'course_rep', 'assistant_course_rep', 'governor', 'financial_secretary', 'developer']
+    if (!validRoles.includes(role)) {
+      return new Response(JSON.stringify({ error: 'Invalid role' }), {
         status: 400,
         headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })
@@ -184,13 +204,13 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Insert profile
+    // Insert profile using sanitized values
     const { error: profileError } = await supabaseAdmin.from('profiles').insert({
       id: authData.user.id,
       email,
-      full_name,
+      full_name: safeFullName,
       department_id: department_id || null,
-      student_id: student_id || null,
+      student_id: safeStudentId,
       role,
       password_changed: false,
     })
@@ -205,9 +225,8 @@ Deno.serve(async (req) => {
 
     // Send welcome email with temporary password via Resend (non-fatal if it fails)
     const resendKey = Deno.env.get('RESEND_API_KEY')
-    const appUrl = APP_URL
     if (resendKey) {
-      await sendWelcomeEmail(resendKey, email, full_name, password, role, appUrl)
+      await sendWelcomeEmail(resendKey, email, safeFullName, password, role, APP_URL)
     }
 
     return new Response(JSON.stringify({ user_id: authData.user.id }), {

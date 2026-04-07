@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { checkCombinedRateLimit, getClientIp } from '../_shared/rate-limit.ts'
 
 const APP_URL = Deno.env.get('APP_URL') ?? 'http://localhost:5173'
 
@@ -13,34 +14,6 @@ function corsHeaders(req: Request) {
     'Access-Control-Allow-Origin': isAllowed ? origin : APP_URL,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   }
-}
-
-async function checkRateLimit(
-  admin: ReturnType<typeof createClient>,
-  userId: string,
-  action: string,
-  maxRequests: number,
-  windowMinutes: number
-): Promise<boolean> {
-  const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString()
-  const { data: existing } = await admin
-    .from('rate_limits')
-    .select('id, request_count, window_start')
-    .eq('user_id', userId)
-    .eq('action', action)
-    .maybeSingle()
-
-  if (!existing) {
-    await admin.from('rate_limits').insert({ user_id: userId, action, request_count: 1, window_start: new Date().toISOString() })
-    return true
-  }
-  if (existing.window_start < windowStart) {
-    await admin.from('rate_limits').update({ request_count: 1, window_start: new Date().toISOString() }).eq('id', existing.id)
-    return true
-  }
-  if (existing.request_count >= maxRequests) return false
-  await admin.from('rate_limits').update({ request_count: existing.request_count + 1 }).eq('id', existing.id)
-  return true
 }
 
 Deno.serve(async (req) => {
@@ -74,10 +47,16 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Rate limit: max 20 payment verifications per hour per student
-    const allowed = await checkRateLimit(supabaseAdmin, caller.id, 'verify-payment', 20, 60)
+    // Combined rate limit: 20/hour per user + 40/hour per IP
+    const ip = getClientIp(req)
+    const { allowed, reason } = await checkCombinedRateLimit(
+      supabaseAdmin, caller.id, ip, 'verify-payment', 20, 40, 60
+    )
     if (!allowed) {
-      return new Response(JSON.stringify({ error: 'Rate limit exceeded. Try again later.' }), {
+      const message = reason === 'ip'
+        ? 'Too many payment requests from this network. Try again later.'
+        : 'Rate limit exceeded. Try again later.'
+      return new Response(JSON.stringify({ error: message }), {
         status: 429,
         headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
       })

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 import type { ReactNode } from 'react'
+import { isValidUUID } from '@/lib/validation'
 
 type ViewMode = 'management' | 'student'
 
@@ -26,7 +27,9 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
   })
 
   const [studentDepartmentId, setStudentDepartmentIdState] = useState<string | null>(() => {
-    return localStorage.getItem('studentDepartmentId') || null
+    const stored = localStorage.getItem('studentDepartmentId')
+    // Validate before trusting — localStorage is user-writable
+    return stored && isValidUUID(stored) ? stored : null
   })
 
   const setViewMode = (mode: ViewMode) => {
@@ -61,5 +64,8 @@ export function useViewMode() {
 // Uses profile's department_id first; falls back to studentDepartmentId for special roles.
 export function useEffectiveDepartmentId(profileDeptId: string | null | undefined): string | null {
   const { studentDepartmentId } = useViewMode()
-  return profileDeptId ?? studentDepartmentId
+  // profileDeptId comes from the auth context (DB value) — trusted
+  if (profileDeptId) return profileDeptId
+  // studentDepartmentId comes from localStorage — re-validate before use in query strings
+  return studentDepartmentId && isValidUUID(studentDepartmentId) ? studentDepartmentId : null
 }

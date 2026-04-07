@@ -105,24 +105,55 @@ export default function CourseRepMockTests() {
   }
 
   const handleSave = async (publish: boolean) => {
-    if (!title || !subject) { toast({ title: 'Title and subject are required', variant: 'destructive' }); return }
-    if (questions.length < 5) { toast({ title: 'Minimum 5 questions required', variant: 'destructive' }); return }
-    const invalid = questions.some(q => !q.question_text || !q.option_a || !q.option_b || !q.option_c || !q.option_d)
+    const cleanTitle = title.trim().slice(0, 200)
+    const cleanSubject = subject.trim().slice(0, 100)
+    const cleanInstructions = instructions.trim().slice(0, 1000)
+
+    if (!cleanTitle || !cleanSubject) {
+      toast({ title: 'Title and subject are required', variant: 'destructive' }); return
+    }
+    const parsedLimit = parseInt(timeLimit, 10)
+    if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 180) {
+      toast({ title: 'Time limit must be between 1 and 180 minutes', variant: 'destructive' }); return
+    }
+    if (questions.length < 5) {
+      toast({ title: 'Minimum 5 questions required', variant: 'destructive' }); return
+    }
+    const invalid = questions.some(
+      q => !q.question_text.trim() || !q.option_a.trim() || !q.option_b.trim() || !q.option_c.trim() || !q.option_d.trim()
+    )
     if (invalid) { toast({ title: 'All questions must be complete', variant: 'destructive' }); return }
+
+    const oversized = questions.some(q => q.question_text.length > 1000 || [q.option_a, q.option_b, q.option_c, q.option_d].some(o => o.length > 500))
+    if (oversized) { toast({ title: 'Question or option text is too long', variant: 'destructive' }); return }
+
+    const validAnswers = new Set(['a', 'b', 'c', 'd'])
+    const badAnswer = questions.some(q => !validAnswers.has(q.correct_answer))
+    if (badAnswer) { toast({ title: 'Each question must have a valid correct answer (a–d)', variant: 'destructive' }); return }
 
     setSaving(true)
     try {
       const { data: test, error } = await supabase.from('mock_tests').insert({
-        title, subject,
-        time_limit: parseInt(timeLimit),
-        instructions: instructions || null,
+        title: cleanTitle,
+        subject: cleanSubject,
+        time_limit: parsedLimit,
+        instructions: cleanInstructions || null,
         status: publish ? 'published' : 'draft',
         department_id: scope === 'general' ? null : profile!.department_id,
         created_by: profile!.id,
       }).select().single()
       if (error) throw error
 
-      const qRows = questions.map((q, i) => ({ ...q, test_id: test.id, order_index: i }))
+      const qRows = questions.map((q, i) => ({
+        question_text: q.question_text.trim().slice(0, 1000),
+        option_a: q.option_a.trim().slice(0, 500),
+        option_b: q.option_b.trim().slice(0, 500),
+        option_c: q.option_c.trim().slice(0, 500),
+        option_d: q.option_d.trim().slice(0, 500),
+        correct_answer: q.correct_answer,
+        test_id: test.id,
+        order_index: i,
+      }))
       const { error: qError } = await supabase.from('mock_questions').insert(qRows)
       if (qError) throw qError
 

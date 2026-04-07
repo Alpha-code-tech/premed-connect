@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -29,6 +29,7 @@ export default function RequestAccess() {
   const [submitted, setSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [departments, setDepartments] = useState<Department[]>([])
+  const loadTimeRef = useRef(Date.now())
   const { toast } = useToast()
 
   useEffect(() => {
@@ -44,21 +45,29 @@ export default function RequestAccess() {
 
   const onSubmit = async (data: RequestFormData) => {
     setIsLoading(true)
-    const { error } = await supabase.from('access_requests').insert({
-      full_name: data.full_name,
-      department_id: data.department_id,
-      matriculation_number: data.matriculation_number,
-      gmail: data.gmail,
-      status: 'pending',
-    })
-    setIsLoading(false)
+    try {
+      const { error: fnError } = await supabase.functions.invoke('submit-access-request', {
+        body: {
+          full_name: data.full_name,
+          department_id: data.department_id,
+          matriculation_number: data.matriculation_number,
+          gmail: data.gmail,
+          _h: '',          // Honeypot field — always empty for real users
+          _t: loadTimeRef.current, // Page load timestamp for bot timing detection
+        },
+      })
 
-    if (error) {
-      toast({ title: 'Submission failed', description: error.message, variant: 'destructive' })
-      return
+      if (fnError) {
+        toast({ title: 'Submission failed', description: fnError.message, variant: 'destructive' })
+        return
+      }
+
+      setSubmitted(true)
+    } catch {
+      toast({ title: 'Submission failed', description: 'Could not submit your request. Please try again.', variant: 'destructive' })
+    } finally {
+      setIsLoading(false)
     }
-
-    setSubmitted(true)
   }
 
   if (submitted) {

@@ -123,6 +123,7 @@ export default function StudentTimetable() {
         .from('timetable_entries')
         .update(data)
         .eq('id', id)
+        .eq('student_id', profile!.id)
       if (error) throw error
     },
     onSuccess: () => {
@@ -141,6 +142,7 @@ export default function StudentTimetable() {
         .from('timetable_entries')
         .delete()
         .eq('id', id)
+        .eq('student_id', profile!.id)
       if (error) throw error
     },
     onSuccess: () => {
