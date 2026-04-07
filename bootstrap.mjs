@@ -8,7 +8,7 @@
  * Example:
  *   node bootstrap.mjs admin@premed.com "MyPass123!" "John Doe"
  *
- * Requires VITE_SUPABASE_SERVICE_ROLE_KEY in .env.local
+ * Requires SUPABASE_SERVICE_ROLE_KEY in .env.local (no VITE_ prefix — never expose this to the frontend)
  */
 
 import { createClient } from '@supabase/supabase-js'
@@ -35,10 +35,10 @@ try {
 }
 
 const SUPABASE_URL = env['VITE_SUPABASE_URL']
-const SERVICE_ROLE_KEY = env['VITE_SUPABASE_SERVICE_ROLE_KEY']
+const SERVICE_ROLE_KEY = env['SUPABASE_SERVICE_ROLE_KEY']
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_SERVICE_ROLE_KEY in .env.local')
+  console.error('Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local')
   process.exit(1)
 }
 
