@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0D5C2E"/>
+
+  <!-- Flask body -->
+  <g transform="translate(256,256)">
+    <!-- Flask neck (stem) -->
+    <rect x="-36" y="-130" width="72" height="90" rx="8" fill="white"/>
+    <!-- Flask body (trapezoid via path) -->
+    <path d="M-36,-44 L-110,110 Q-118,130 -100,138 L100,138 Q118,130 110,110 L36,-44 Z" fill="white"/>
+    <!-- Liquid inside flask -->
+    <path d="M-98,100 Q-106,125 -100,138 L100,138 Q106,125 98,100 Z" fill="#7FFFC4" opacity="0.85"/>
+    <!-- Bubbles -->
+    <circle cx="-30" cy="80" r="10" fill="#7FFFC4" opacity="0.6"/>
+    <circle cx="20" cy="100" r="7" fill="#7FFFC4" opacity="0.5"/>
+    <circle cx="-10" cy="110" r="5" fill="#7FFFC4" opacity="0.4"/>
+    <!-- Flask mouth rim -->
+    <rect x="-46" y="-138" width="92" height="20" rx="10" fill="white"/>
+  </g>
+</svg>
