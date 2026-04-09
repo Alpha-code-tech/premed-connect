@@ -271,6 +271,7 @@ const VISIONARIES = [
   // Course reps & ACRs alphabetically by last name
   { name: 'Abigail Ayomide',            role: 'Course Representative — Pharmacology', image: '/executives/Abigail Ayomide Pharmacology CR.jpg' },
   { name: 'Adeagbo David',              role: 'Asst. Course Rep — Nursing',          image: '/executives/Adeagbo David Nursing ACR.jpg' },
+  { name: 'Attah Jennifer',             role: 'Asst. Course Rep — Nursing (NACON)',  image: '/executives/Attah Jennifer Nursing (NACON) ACR.jpg' },
   { name: 'Badmus Eniola',              role: 'Course Representative — Anatomy',     image: '/executives/Badmus Eniola Anatomy CR.jpg' },
   { name: 'Fred Praise Gold',           role: 'Asst. Course Rep — Physiology',       image: '/executives/Fred Praise Gold Physiology ACR.jpg' },
   { name: 'Kennis Kalu Dede',           role: 'Course Representative — MBBS',        image: '/executives/Kennis Kalu Dede MBBS CR.jpg' },
@@ -282,14 +283,12 @@ const VISIONARIES = [
 
 function Visionaries() {
   const [index, setIndex] = React.useState(0)
-  const [direction, setDirection] = React.useState(1)
   const total = VISIONARIES.length
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const go = React.useCallback((next: number) => {
-    setDirection(next > index || (index === total - 1 && next === 0) ? 1 : -1)
     setIndex(next)
-  }, [index, total])
+  }, [])
 
   const prev = () => go((index - 1 + total) % total)
   const next = () => go((index + 1) % total)
