@@ -270,7 +270,7 @@ const VISIONARIES = [
   { name: 'Victoria Eniolorunda',        role: 'PreMed Deputy Governor',             image: '/executives/Victoria Eniolorunda Premed Deputy Governor.jpg' },
   // Course reps & ACRs alphabetically by last name
   { name: 'Abigail Ayomide',            role: 'Course Representative — Pharmacology', image: '/executives/Abigail Ayomide Pharmacology CR.jpg' },
-  { name: 'Adeagbo David',              role: 'Asst. Course Rep — Nursing',          image: '/executives/Adeagbo David Nursing ACR.jpg' },
+  { name: 'Adeagbo David',              role: 'Course Representative — Nursing',     image: '/executives/Adeagbo David Nursing ACR.jpg' },
   { name: 'Attah Jennifer',             role: 'Asst. Course Rep — Nursing (NACON)',  image: '/executives/Attah Jennifer Nursing (NACON) ACR.jpg' },
   { name: 'Badmus Eniola',              role: 'Course Representative — Anatomy',     image: '/executives/Badmus Eniola Anatomy CR.jpg' },
   { name: 'Fred Praise Gold',           role: 'Asst. Course Rep — Physiology',       image: '/executives/Fred Praise Gold Physiology ACR.jpg' },
