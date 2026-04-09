@@ -47,6 +47,7 @@ export default function DeveloperOverview() {
         { count: totalResources },
         { data: paymentsData },
         { data: deptStudents },
+        { data: departments },
         { data: recentActivity },
       ] = await Promise.all([
         supabase
@@ -60,6 +61,7 @@ export default function DeveloperOverview() {
         supabase.from('resources').select('id', { count: 'exact', head: true }),
         supabase.from('payments').select('amount').eq('status', 'successful'),
         supabase.from('profiles').select('department_id').eq('role', 'student'),
+        supabase.from('departments').select('id, name'),
         supabase
           .from('audit_log')
           .select('*')
@@ -70,17 +72,20 @@ export default function DeveloperOverview() {
       const totalPayments =
         paymentsData?.reduce((sum, p: { amount: number }) => sum + p.amount, 0) ?? 0
 
+      const deptNameMap = Object.fromEntries(
+        (departments ?? []).map((d: { id: string; name: string }) => [d.id, d.name])
+      )
+
       const deptCount: Record<string, number> = {}
       deptStudents?.forEach((s: { department_id: string | null }) => {
-        const dept = s.department_id ?? 'Unknown'
-        deptCount[dept] = (deptCount[dept] ?? 0) + 1
+        const name = s.department_id
+          ? (deptNameMap[s.department_id] ?? 'Unknown')
+          : 'Unknown'
+        deptCount[name] = (deptCount[name] ?? 0) + 1
       })
 
       const chartData: ChartDataPoint[] = Object.entries(deptCount)
-        .map(([name, count]) => ({
-          name: name.split(' ').slice(0, 2).join(' '),
-          count,
-        }))
+        .map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count)
 
       return {
