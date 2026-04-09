@@ -7,7 +7,8 @@ import { InfiniteSlider } from '@/components/ui/infinite-slider'
 import { ProgressiveBlur } from '@/components/ui/progressive-blur'
 import {
   Menu, X, BookOpen, CreditCard, ClipboardList,
-  Bell, FileText, FlaskConical, Users, ShieldCheck,
+  Bell, FileText, FlaskConical, ShieldCheck,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react'
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
@@ -263,25 +264,47 @@ function DepartmentsTicker() {
 
 // ── Visionaries ───────────────────────────────────────────────────────────────
 
-// TODO: Replace with real executives when photos and details are provided
-const VISIONARIES: {
-  name: string
-  role: string
-  department: string
-  image: string
-}[] = [
-  // Example entry (replace with real data):
-  // {
-  //   name: 'Adebayo Johnson',
-  //   role: 'Governor',
-  //   department: 'Human Anatomy',
-  //   image: 'https://your-image-url.jpg',
-  // },
+const VISIONARIES = [
+  // Leadership first
+  { name: 'Raji Ahmed Ajani',           role: 'PreMed Governor',                    image: '/executives/Raji Ahmed Ajani PreMed Governor.jpg' },
+  { name: 'Victoria Eniolorunda',        role: 'PreMed Deputy Governor',             image: '/executives/Victoria Eniolorunda Premed Deputy Governor.jpg' },
+  // Course reps & ACRs alphabetically by last name
+  { name: 'Abigail Ayomide',            role: 'Course Representative — Pharmacology', image: '/executives/Abigail Ayomide Pharmacology CR.jpg' },
+  { name: 'Adeagbo David',              role: 'Asst. Course Rep — Nursing',          image: '/executives/Adeagbo David Nursing ACR.jpg' },
+  { name: 'Badmus Eniola',              role: 'Course Representative — Anatomy',     image: '/executives/Badmus Eniola Anatomy CR.jpg' },
+  { name: 'Fred Praise Gold',           role: 'Asst. Course Rep — Physiology',       image: '/executives/Fred Praise Gold Physiology ACR.jpg' },
+  { name: 'Kennis Kalu Dede',           role: 'Course Representative — MBBS',        image: '/executives/Kennis Kalu Dede MBBS CR.jpg' },
+  { name: 'Michael Favour Chiamaka',    role: 'Course Representative — Radiography', image: '/executives/Michael Favour Chiamaka Radiography CR.jpg' },
+  { name: 'Niyi-Odewale Seyifunmi',     role: 'Course Representative — Physiotherapy', image: '/executives/Niyi-Odewale Seyifunmi Physiotherapy CR.jpg' },
+  { name: 'Qasim Munirat Adedoyin',     role: 'Asst. Course Rep — Pharmacology',     image: '/executives/Qasim Munirat Adedoyin ACR Pharmacology.jpg' },
+  { name: 'Solomon Uduak',              role: 'Course Representative — Nursing (NACON)', image: '/executives/Solomon Uduak Nursing (NACON) CR.jpg' },
 ]
 
 function Visionaries() {
+  const [index, setIndex] = React.useState(0)
+  const [direction, setDirection] = React.useState(1)
+  const total = VISIONARIES.length
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const go = React.useCallback((next: number) => {
+    setDirection(next > index || (index === total - 1 && next === 0) ? 1 : -1)
+    setIndex(next)
+  }, [index, total])
+
+  const prev = () => go((index - 1 + total) % total)
+  const next = () => go((index + 1) % total)
+
+  // Auto-advance every 4 s; reset on manual nav
+  React.useEffect(() => {
+    timerRef.current = setTimeout(() => go((index + 1) % total), 4000)
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [index, go, total])
+
+  // Build the 3 visible indices (center = active)
+  const indices = [-1, 0, 1].map(offset => (index + offset + total) % total)
+
   return (
-    <section id="visionaries" className="bg-white py-24 px-6 lg:px-12">
+    <section id="visionaries" className="bg-white py-24 px-6 lg:px-12 overflow-hidden">
       <div className="mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -297,39 +320,96 @@ function Visionaries() {
           </p>
         </motion.div>
 
-        {VISIONARIES.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-brand-border bg-brand-pale p-16 text-center">
-            <Users className="h-10 w-10 text-brand-grey mx-auto mb-4" />
-            <p className="text-brand-grey font-medium">Executive profiles coming soon</p>
-            <p className="text-sm text-brand-grey mt-1">Provide names, roles, departments and photos to populate this section.</p>
+        {/* Carousel */}
+        <div className="relative flex items-center gap-4">
+          {/* Prev button */}
+          <button
+            onClick={prev}
+            className="hidden sm:flex shrink-0 h-10 w-10 items-center justify-center rounded-full border border-brand-border bg-white shadow-sm hover:bg-brand-pale transition-colors z-10"
+            aria-label="Previous"
+          >
+            <ChevronLeft className="h-5 w-5 text-brand-text" />
+          </button>
+
+          {/* Cards */}
+          <div className="flex-1 overflow-hidden">
+            <div className="flex items-stretch justify-center gap-4">
+              {indices.map((vIdx, pos) => {
+                const v = VISIONARIES[vIdx]
+                const isCenter = pos === 1
+                return (
+                  <motion.div
+                    key={vIdx}
+                    layout
+                    animate={{
+                      scale: isCenter ? 1 : 0.88,
+                      opacity: isCenter ? 1 : 0.5,
+                    }}
+                    transition={{ duration: 0.4, ease: 'easeInOut' }}
+                    className={cn(
+                      'rounded-2xl border border-brand-border overflow-hidden bg-white cursor-pointer transition-shadow',
+                      isCenter ? 'shadow-xl' : 'shadow-sm hidden sm:block',
+                    )}
+                    style={{ flex: isCenter ? '0 0 340px' : '0 0 260px' }}
+                    onClick={() => !isCenter && go(vIdx)}
+                  >
+                    <div className={cn(
+                      'overflow-hidden bg-gradient-to-br from-brand-pale to-brand-border',
+                      isCenter ? 'h-80' : 'h-64',
+                    )}>
+                      <img
+                        src={v.image}
+                        alt={v.name}
+                        className="h-full w-full object-cover object-top"
+                        draggable={false}
+                      />
+                    </div>
+                    <div className={cn('p-4 text-center', isCenter ? 'p-5' : '')}>
+                      <h3 className={cn('font-bold text-brand-text', isCenter ? 'text-lg' : 'text-sm')}>{v.name}</h3>
+                      <p className={cn('font-medium text-brand-primary mt-1', isCenter ? 'text-sm' : 'text-xs')}>{v.role}</p>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
           </div>
-        ) : (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {VISIONARIES.map((v, i) => (
-              <motion.div
-                key={v.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="group rounded-2xl border border-brand-border overflow-hidden hover:shadow-lg transition-shadow"
-              >
-                <div className="relative h-64 overflow-hidden bg-gradient-to-br from-brand-pale to-brand-border">
-                  <img
-                    src={v.image}
-                    alt={v.name}
-                    className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-brand-text">{v.name}</h3>
-                  <p className="text-sm font-medium text-brand-primary mt-0.5">{v.role}</p>
-                  <p className="text-xs text-brand-grey mt-1">{v.department}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
+
+          {/* Next button */}
+          <button
+            onClick={next}
+            className="hidden sm:flex shrink-0 h-10 w-10 items-center justify-center rounded-full border border-brand-border bg-white shadow-sm hover:bg-brand-pale transition-colors z-10"
+            aria-label="Next"
+          >
+            <ChevronRight className="h-5 w-5 text-brand-text" />
+          </button>
+        </div>
+
+        {/* Mobile prev/next */}
+        <div className="flex justify-center gap-3 mt-6 sm:hidden">
+          <button onClick={prev} className="h-9 w-9 flex items-center justify-center rounded-full border border-brand-border bg-white shadow-sm" aria-label="Previous">
+            <ChevronLeft className="h-4 w-4 text-brand-text" />
+          </button>
+          <button onClick={next} className="h-9 w-9 flex items-center justify-center rounded-full border border-brand-border bg-white shadow-sm" aria-label="Next">
+            <ChevronRight className="h-4 w-4 text-brand-text" />
+          </button>
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex justify-center gap-2 mt-6">
+          {VISIONARIES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => go(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className={cn(
+                'rounded-full transition-all duration-300',
+                i === index
+                  ? 'bg-brand-primary w-6 h-2'
+                  : 'bg-brand-border w-2 h-2',
+              )}
+            />
+          ))}
+        </div>
       </div>
     </section>
   )
