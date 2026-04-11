@@ -9,9 +9,81 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateShort } from '@/lib/utils'
 import TopicTracker from '@/components/student/TopicTracker'
 
+// ── Daily quotes ──────────────────────────────────────────────────────────────
+
+const QUOTES = [
+  'The secret of getting ahead is getting started.',
+  'Excellence is not a destination but a continuous journey.',
+  'Study hard, for the well is deep and our brains are shallow.',
+  'Medicine is a science of uncertainty and an art of probability.',
+  'The expert in anything was once a beginner.',
+  'Success is the sum of small efforts repeated day in and day out.',
+  'Motivation gets you going, but discipline keeps you growing.',
+  'A physician without a knowledge of anatomy is like a blind man carving a statue.',
+  'Your only limit is your mind.',
+  'Do not watch the clock. Do what it does — keep going.',
+  'Push yourself, because no one else is going to do it for you.',
+  'Anatomy is the foundation; everything else is built on top of it.',
+  'The more that you read, the more things you will know.',
+  'Hard work beats talent when talent doesn\'t work hard.',
+  'Every expert was once a beginner. Every pro was once an amateur.',
+  'Small daily improvements over time lead to stunning results.',
+  'Dream big. Start small. Act now.',
+  'Healing is a matter of time, but it is sometimes also a matter of opportunity.',
+  'Be so good they cannot ignore you.',
+  'Your future self is watching you right now — make them proud.',
+]
+
+function getDailyQuote(): string {
+  const now = new Date()
+  const start = new Date(now.getFullYear(), 0, 0)
+  const dayOfYear = Math.floor((now.getTime() - start.getTime()) / 86400000)
+  return QUOTES[dayOfYear % QUOTES.length]
+}
+
+// ── Hero circular progress ring (white on dark background) ────────────────────
+
+function HeroRing({ pct }: { pct: number }) {
+  const size = 88
+  const r = (size - 12) / 2
+  const circ = 2 * Math.PI * r
+  const dash = (pct / 100) * circ
+  return (
+    <div className="relative shrink-0 flex items-center justify-center">
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.2)" strokeWidth={9} fill="none" />
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          stroke="#ffffff" strokeWidth={9} fill="none"
+          strokeDasharray={`${dash} ${circ}`}
+          strokeLinecap="round"
+          style={{ transition: 'stroke-dasharray 0.6s ease' }}
+        />
+      </svg>
+      <span className="absolute inset-0 flex flex-col items-center justify-center rotate-90">
+        <span className="text-lg font-bold text-white leading-none">{pct}%</span>
+        <span className="text-[10px] text-white/70 leading-none mt-0.5">done</span>
+      </span>
+    </div>
+  )
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
 export default function StudentDashboard() {
   const { profile } = useAuth()
   const effectiveDeptId = useEffectiveDepartmentId(profile?.department_id)
+  const dailyQuote = getDailyQuote()
+
+  // Today's date formatted for display
+  const todayLabel = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+
+  // ── Queries ─────────────────────────────────────────────────────────────────
 
   const { data: pendingPayments, isLoading: paymentsLoading } = useQuery({
     queryKey: ['student-pending-payments', profile?.id],
@@ -98,136 +170,194 @@ export default function StudentDashboard() {
     },
   })
 
+  // Course topics — same query key as TopicTracker so React Query shares the cache
+  const { data: topics } = useQuery({
+    queryKey: ['course-topics', profile?.id],
+    enabled: !!profile,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('course_topics')
+        .select('is_completed')
+        .eq('student_id', profile!.id)
+      if (error) throw error
+      return data ?? []
+    },
+  })
+
+  const totalTopics = topics?.length ?? 0
+  const completedTopics = topics?.filter(t => t.is_completed).length ?? 0
+  const studyPct = totalTopics ? Math.round((completedTopics / totalTopics) * 100) : 0
+
+  const firstName = profile?.full_name.split(' ')[0] ?? ''
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-text">
-          Welcome back, {profile?.full_name.split(' ')[0]} 👋
-        </h1>
-        <p className="text-brand-grey mt-1">Here's what's happening in your portal today.</p>
-      </div>
+    <div className="flex flex-col min-h-full">
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg border border-brand-border p-4">
-          {paymentsLoading ? <Skeleton className="h-16 w-full" /> : (
-            <>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-brand-grey">Pending Payments</p>
-                <div className="w-8 h-8 rounded-lg bg-brand-pale flex items-center justify-center">
-                  <CreditCard className="h-4 w-4 text-brand-primary" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-brand-text">{pendingPayments ?? 0}</p>
-              <p className="text-xs text-brand-grey mt-1">Awaiting your action</p>
-            </>
-          )}
-        </div>
-        <div className="bg-white rounded-lg border border-brand-border p-4">
-          {notificationsLoading ? <Skeleton className="h-16 w-full" /> : (
-            <>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-brand-grey">Unread Notifications</p>
-                <div className="w-8 h-8 rounded-lg bg-brand-pale flex items-center justify-center">
-                  <Bell className="h-4 w-4 text-brand-primary" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-brand-text">{unreadNotifications ?? 0}</p>
-              <p className="text-xs text-brand-grey mt-1">New notifications</p>
-            </>
-          )}
-        </div>
-        <div className="bg-white rounded-lg border border-brand-border p-4">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-brand-grey">Department</p>
-            <div className="w-8 h-8 rounded-lg bg-brand-pale flex items-center justify-center">
-              <BookOpen className="h-4 w-4 text-brand-primary" />
-            </div>
+      {/* ── Dark gradient hero header ────────────────────────────────────────── */}
+      <div
+        className="px-6 py-8 md:px-10"
+        style={{ background: 'linear-gradient(135deg, #0D5C2E 0%, #16A085 100%)' }}
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-6 flex-wrap">
+
+          {/* Left: greeting, date, dept, quote */}
+          <div className="flex-1 min-w-0 space-y-2">
+            <p className="text-white/70 text-sm font-medium">{todayLabel}</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight">
+              Welcome back, {firstName}
+            </h1>
+            {department?.name && (
+              <p className="text-white/80 text-sm">
+                {department.name}
+              </p>
+            )}
+            <p className="text-white/60 text-sm italic leading-relaxed max-w-md pt-1">
+              "{dailyQuote}"
+            </p>
           </div>
-          <p className="text-sm font-bold text-brand-text line-clamp-2">{department?.name || 'N/A'}</p>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Megaphone className="h-4 w-4 text-brand-primary" /> Recent Announcements
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {announcementsLoading
-                ? [...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
-                : announcements?.length === 0
-                  ? <p className="text-sm text-brand-grey text-center py-4">No announcements yet</p>
-                  : announcements?.map((a) => (
-                    <div key={a.id} className="p-3 rounded-lg bg-brand-pale/50 border border-brand-border">
-                      <h3 className="font-medium text-sm text-brand-text">{a.title}</h3>
-                      <p className="text-xs text-brand-grey mt-1 line-clamp-2">{a.body}</p>
-                      <p className="text-xs text-brand-grey mt-1">{formatDateShort(a.created_at)}</p>
-                    </div>
-                  ))}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-brand-primary" /> Upcoming Sessions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {timetableLoading
-                ? [...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)
-                : timetable?.length === 0
-                  ? <p className="text-sm text-brand-grey text-center py-4">No upcoming sessions</p>
-                  : timetable?.map((entry) => (
-                    <div key={entry.id} className="p-3 rounded-lg bg-brand-pale/50 border border-brand-border">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-brand-primary bg-brand-pale px-2 py-0.5 rounded">
-                          {entry.day_of_week}
-                        </span>
-                        <span className="text-xs text-brand-grey">{entry.start_time}</span>
-                      </div>
-                      <p className="text-sm font-medium text-brand-text mt-1">{entry.subject}</p>
-                      <p className="text-xs text-brand-grey">{entry.topic}</p>
-                    </div>
-                  ))}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <TopicTracker summaryOnly />
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-brand-primary" /> Recent Resources
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {resourcesLoading ? (
-            <div className="grid sm:grid-cols-3 gap-3">
-              {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
-            </div>
-          ) : resources?.length === 0 ? (
-            <p className="text-sm text-brand-grey text-center py-4">No resources available yet</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {resources?.map((r) => (
-                <div key={r.id} className="p-3 rounded-lg bg-brand-pale/50 border border-brand-border">
-                  <Badge variant="outline" className="text-xs mb-1">{r.file_type}</Badge>
-                  <p className="text-sm font-medium text-brand-text line-clamp-1">{r.title}</p>
-                  <p className="text-xs text-brand-grey mt-1">{r.subject}</p>
-                </div>
-              ))}
+          {/* Right: study progress ring */}
+          {totalTopics > 0 && (
+            <div className="flex flex-col items-center gap-1.5 shrink-0">
+              <HeroRing pct={studyPct} />
+              <p className="text-white/70 text-xs text-center">Study Progress</p>
+              <p className="text-white/50 text-[11px] text-center">{completedTopics}/{totalTopics} topics</p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* ── Main content ─────────────────────────────────────────────────────── */}
+      <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
+
+        {/* Stat cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="bg-white rounded-lg border border-brand-border p-4">
+            {paymentsLoading ? <Skeleton className="h-16 w-full" /> : (
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-brand-grey">Pending Payments</p>
+                  <div className="w-8 h-8 rounded-lg bg-brand-pale flex items-center justify-center">
+                    <CreditCard className="h-4 w-4 text-brand-primary" />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-brand-text">{pendingPayments ?? 0}</p>
+                <p className="text-xs text-brand-grey mt-1">Awaiting your action</p>
+              </>
+            )}
+          </div>
+          <div className="bg-white rounded-lg border border-brand-border p-4">
+            {notificationsLoading ? <Skeleton className="h-16 w-full" /> : (
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-brand-grey">Unread Notifications</p>
+                  <div className="w-8 h-8 rounded-lg bg-brand-pale flex items-center justify-center">
+                    <Bell className="h-4 w-4 text-brand-primary" />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-brand-text">{unreadNotifications ?? 0}</p>
+                <p className="text-xs text-brand-grey mt-1">New notifications</p>
+              </>
+            )}
+          </div>
+          <div className="bg-white rounded-lg border border-brand-border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-brand-grey">Department</p>
+              <div className="w-8 h-8 rounded-lg bg-brand-pale flex items-center justify-center">
+                <BookOpen className="h-4 w-4 text-brand-primary" />
+              </div>
+            </div>
+            <p className="text-sm font-bold text-brand-text line-clamp-2">{department?.name || 'N/A'}</p>
+          </div>
+        </div>
+
+        {/* Announcements + Upcoming Sessions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Megaphone className="h-4 w-4 text-brand-primary" /> Recent Announcements
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {announcementsLoading
+                  ? [...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
+                  : announcements?.length === 0
+                    ? <p className="text-sm text-brand-grey text-center py-4">No announcements yet</p>
+                    : announcements?.map((a) => (
+                      <div key={a.id} className="p-3 rounded-lg bg-brand-pale/50 border border-brand-border">
+                        <h3 className="font-medium text-sm text-brand-text">{a.title}</h3>
+                        <p className="text-xs text-brand-grey mt-1 line-clamp-2">{a.body}</p>
+                        <p className="text-xs text-brand-grey mt-1">{formatDateShort(a.created_at)}</p>
+                      </div>
+                    ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-brand-primary" /> Upcoming Sessions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {timetableLoading
+                  ? [...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)
+                  : timetable?.length === 0
+                    ? <p className="text-sm text-brand-grey text-center py-4">No upcoming sessions</p>
+                    : timetable?.map((entry) => (
+                      <div key={entry.id} className="p-3 rounded-lg bg-brand-pale/50 border border-brand-border">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-brand-primary bg-brand-pale px-2 py-0.5 rounded">
+                            {entry.day_of_week}
+                          </span>
+                          <span className="text-xs text-brand-grey">{entry.start_time}</span>
+                        </div>
+                        <p className="text-sm font-medium text-brand-text mt-1">{entry.subject}</p>
+                        <p className="text-xs text-brand-grey">{entry.topic}</p>
+                      </div>
+                    ))}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Topic tracker summary */}
+        <TopicTracker summaryOnly />
+
+        {/* Recent resources */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-brand-primary" /> Recent Resources
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {resourcesLoading ? (
+              <div className="grid sm:grid-cols-3 gap-3">
+                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}
+              </div>
+            ) : resources?.length === 0 ? (
+              <p className="text-sm text-brand-grey text-center py-4">No resources available yet</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {resources?.map((r) => (
+                  <div key={r.id} className="p-3 rounded-lg bg-brand-pale/50 border border-brand-border">
+                    <Badge variant="outline" className="text-xs mb-1">{r.file_type}</Badge>
+                    <p className="text-sm font-medium text-brand-text line-clamp-1">{r.title}</p>
+                    <p className="text-xs text-brand-grey mt-1">{r.subject}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
