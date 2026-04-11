@@ -3,6 +3,39 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      course_topics: {
+        Row: {
+          id: string
+          student_id: string
+          course_code: string
+          course_name: string
+          topic_name: string
+          is_completed: boolean
+          created_by: 'student' | 'course_rep'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          student_id: string
+          course_code: string
+          course_name: string
+          topic_name: string
+          is_completed?: boolean
+          created_by: 'student' | 'course_rep'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          student_id?: string
+          course_code?: string
+          course_name?: string
+          topic_name?: string
+          is_completed?: boolean
+          created_by?: 'student' | 'course_rep'
+          created_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatDateShort } from '@/lib/utils'
+import TopicTracker from '@/components/student/TopicTracker'
 
 export default function StudentDashboard() {
   const { profile } = useAuth()
@@ -198,6 +199,8 @@ export default function StudentDashboard() {
           </Card>
         </div>
       </div>
+
+      <TopicTracker summaryOnly />
 
       <Card>
         <CardHeader className="pb-3">

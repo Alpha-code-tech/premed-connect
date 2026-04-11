@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { useToast } from '@/hooks/use-toast'
 import type { TimetableEntry } from '@/types'
+import TopicTracker from '@/components/student/TopicTracker'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -422,6 +423,12 @@ export default function StudentTimetable() {
           </div>
         </div>
       )}
+
+      {/* Course Topic Tracker */}
+      <div>
+        <h2 className="text-lg font-semibold text-brand-text mb-3">Course Topic Tracker</h2>
+        <TopicTracker />
+      </div>
 
       {/* Create / Edit dialog */}
       <Dialog
