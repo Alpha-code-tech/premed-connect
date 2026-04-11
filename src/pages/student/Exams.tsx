@@ -98,17 +98,17 @@ export default function StudentExams() {
 
   // ── Queries ───────────────────────────────────────────────────────────────
 
+  const deptId = profile?.department_id ?? null
+
   const { data: tests, isLoading } = useQuery({
-    queryKey: ['student-exams', profile?.department_id],
-    enabled: !!profile,
+    queryKey: ['student-exams', deptId],
+    enabled: !!profile && !!deptId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('mock_tests')
         .select('*')
         .eq('status', 'published')
-        .or(
-          `department_id.is.null,department_id.eq.${profile!.department_id}`,
-        )
+        .or(`department_id.is.null,department_id.eq.${deptId}`)
         .order('created_at', { ascending: false })
       if (error) throw error
       return data as MockTest[]

@@ -12,14 +12,16 @@ export default function StudentInbox() {
   const { profile } = useAuth()
   const [selected, setSelected] = useState<Announcement | null>(null)
 
+  const deptId = profile?.department_id ?? null
+
   const { data: announcements, isLoading } = useQuery({
-    queryKey: ['student-inbox', profile?.department_id],
-    enabled: !!profile,
+    queryKey: ['student-inbox', deptId],
+    enabled: !!profile && !!deptId,
     queryFn: async () => {
       const { data } = await supabase
         .from('announcements')
         .select('*')
-        .or(`department_id.is.null,department_id.eq.${profile!.department_id}`)
+        .or(`department_id.is.null,department_id.eq.${deptId}`)
         .order('created_at', { ascending: false })
       return (data as Announcement[]) || []
     },

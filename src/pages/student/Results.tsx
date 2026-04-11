@@ -9,14 +9,16 @@ import { formatDateShort } from '@/lib/utils'
 export default function StudentResults() {
   const { profile } = useAuth()
 
+  const deptId = profile?.department_id ?? null
+
   const { data: results, isLoading } = useQuery({
-    queryKey: ['student-results', profile?.department_id],
-    enabled: !!profile,
+    queryKey: ['student-results', deptId],
+    enabled: !!profile && !!deptId,
     queryFn: async () => {
       const { data } = await supabase
         .from('resources')
         .select('*')
-        .or(`visibility.eq.all,and(visibility.eq.department,department_id.eq.${profile!.department_id})`)
+        .or(`visibility.eq.all,and(visibility.eq.department,department_id.eq.${deptId})`)
         .ilike('subject', '%result%')
         .order('created_at', { ascending: false })
       return data || []
