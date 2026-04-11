@@ -23,24 +23,70 @@ const AuthContext = createContext<AuthContextType>({
   updateProfile: () => {},
 })
 
+async function fetchProfile(userId: string): Promise<UserProfile | null> {
+  // Abort if profile fetch hangs for more than 8 seconds
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8000)
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .abortSignal(controller.signal)
+      .single()
+    if (error) return null
+    return data as UserProfile
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+  useEffect(() => {
+    // Hard cap: never show loading screen for more than 6 seconds
+    const hardTimeout = setTimeout(() => setLoading(false), 6000)
 
-    if (error) {
-      return null
+    // Rely solely on onAuthStateChange — it fires INITIAL_SESSION on mount,
+    // which is equivalent to getSession() but without the race condition of
+    // running two simultaneous fetchProfile calls.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, s) => {
+        setSession(s)
+        setUser(s?.user ?? null)
+
+        // USER_UPDATED only reflects auth-layer changes (password/email),
+        // not profile table changes — skip re-fetching to avoid overwriting
+        // optimistic profile updates already applied by updateProfile()
+        if (event === 'USER_UPDATED') {
+          setLoading(false)
+          clearTimeout(hardTimeout)
+          return
+        }
+
+        if (s?.user) {
+          const p = await fetchProfile(s.user.id)
+          setProfile(p)
+        } else {
+          setProfile(null)
+        }
+
+        setLoading(false)
+        clearTimeout(hardTimeout)
+      }
+    )
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(hardTimeout)
     }
-    return data as UserProfile
-  }
+  }, [])
 
   const refreshProfile = async () => {
     if (user) {
@@ -52,43 +98,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = (patch: Partial<UserProfile>) => {
     setProfile(prev => prev ? { ...prev, ...patch } : prev)
   }
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 5000)
-
-    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
-      clearTimeout(timeout)
-      setSession(s)
-      setUser(s?.user ?? null)
-      if (s?.user) {
-        const p = await fetchProfile(s.user.id)
-        setProfile(p)
-      }
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, s) => {
-        setSession(s)
-        setUser(s?.user ?? null)
-        // USER_UPDATED fires when password/email changes — don't re-fetch profile
-        // as it only reflects auth changes, not profile table changes
-        if (event === 'USER_UPDATED') {
-          setLoading(false)
-          return
-        }
-        if (s?.user) {
-          const p = await fetchProfile(s.user.id)
-          setProfile(p)
-        } else {
-          setProfile(null)
-        }
-        setLoading(false)
-      }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [])
 
   const signOut = async () => {
     await supabase.auth.signOut()

@@ -45,7 +45,20 @@ export default function Login() {
     }
 
     setIsLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password })
+    let error: Error | null = null
+    try {
+      const result = await Promise.race([
+        supabase.auth.signInWithPassword({ email: data.email, password: data.password }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 15000)
+        ),
+      ])
+      error = result.error
+    } catch {
+      setIsLoading(false)
+      toast({ title: 'Connection timed out', description: 'Check your internet connection and try again.', variant: 'destructive' })
+      return
+    }
     setIsLoading(false)
 
     if (!error) {

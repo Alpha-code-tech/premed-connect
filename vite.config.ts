@@ -39,10 +39,17 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Cache app shell and static assets
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Force new service worker to activate immediately on deploy
+        // without waiting for all tabs to close — prevents stale app being served
+        skipWaiting: true,
+        clientsClaim: true,
+        // Cache app shell and static assets only (not HTML — always fetch fresh)
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
         // Don't cache Supabase or Paystack API calls
         navigateFallback: '/index.html',
+        // Never serve cached HTML for auth or dashboard routes —
+        // always go to network so the app shell is always fresh
+        navigateFallbackDenylist: [/^\/login/, /^\/dashboard/, /^\/change-password/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
