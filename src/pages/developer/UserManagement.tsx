@@ -219,7 +219,8 @@ export default function DeveloperUserManagement() {
     setShowPassword(false)
   }
 
-  const needsDepartment = ['student', 'course_rep', 'assistant_course_rep'].includes(newUser.role)
+  // Every role belongs to a department — no exceptions
+  const needsDepartment = true
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -410,7 +411,7 @@ export default function DeveloperUserManagement() {
               <label className="text-sm font-medium text-brand-text">Role</label>
               <Select
                 value={newUser.role}
-                onValueChange={(role) => setNewUser((p) => ({ ...p, role, student_id: '', department_id: '' }))}
+                onValueChange={(role) => setNewUser((p) => ({ ...p, role, department_id: '' }))}
               >
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -438,19 +439,15 @@ export default function DeveloperUserManagement() {
                 </Select>
               </div>
             )}
-            {newUser.role === 'student' && (
-              <div>
-                <label className="text-sm font-medium text-brand-text">
-                  Matriculation Number <span className="text-brand-grey font-normal">(optional)</span>
-                </label>
-                <Input
-                  className="mt-1"
-                  placeholder="e.g. MLS/2021/001"
-                  value={newUser.student_id}
-                  onChange={(e) => setNewUser((p) => ({ ...p, student_id: e.target.value }))}
-                />
-              </div>
-            )}
+            <div>
+              <label className="text-sm font-medium text-brand-text">Matriculation Number</label>
+              <Input
+                className="mt-1"
+                placeholder="e.g. MLS/2021/001"
+                value={newUser.student_id}
+                onChange={(e) => setNewUser((p) => ({ ...p, student_id: e.target.value }))}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleCreateClose}>Cancel</Button>
@@ -460,7 +457,8 @@ export default function DeveloperUserManagement() {
                 createUserMutation.isPending ||
                 !newUser.full_name.trim() ||
                 !newUser.email.trim() ||
-                (needsDepartment && !newUser.department_id)
+                !newUser.department_id ||
+                !newUser.student_id.trim()
               }
               onClick={() => createUserMutation.mutate()}
             >
