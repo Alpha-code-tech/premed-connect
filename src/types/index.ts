@@ -103,6 +103,8 @@ export interface MockTest {
   department_id: string | null
   created_by: string
   created_at: string
+  is_weekly_challenge: boolean
+  weekly_challenge_start_date: string | null
 }
 
 export interface MockQuestion {
@@ -128,6 +130,7 @@ export interface MockAttempt {
   percentage: number
   started_at: string
   submitted_at: string | null
+  time_taken_seconds: number | null
 }
 
 export interface Issue {

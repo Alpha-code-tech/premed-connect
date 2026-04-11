@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, FileText, CheckCircle, Trash2 } from 'lucide-react'
+import { Plus, FileText, CheckCircle, Trash2, Trophy } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,8 @@ interface TestWithCreator {
   department_id: string | null
   created_by: string
   created_at: string
+  is_weekly_challenge: boolean
+  weekly_challenge_start_date: string | null
   profiles: { full_name: string; role: string } | null
 }
 
@@ -79,6 +81,25 @@ export default function CourseRepMockTests() {
       })
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['courserep-tests'] }); toast({ title: 'Test published' }) },
+    onError: (e: Error) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+  })
+
+  const weeklyChallengeToggle = useMutation({
+    mutationFn: async ({ testId, enable }: { testId: string; enable: boolean }) => {
+      const { error } = await supabase
+        .from('mock_tests')
+        .update({
+          is_weekly_challenge: enable,
+          weekly_challenge_start_date: enable ? new Date().toISOString() : null,
+        })
+        .eq('id', testId)
+      if (error) throw error
+    },
+    onSuccess: (_, { enable }) => {
+      queryClient.invalidateQueries({ queryKey: ['courserep-tests'] })
+      queryClient.invalidateQueries({ queryKey: ['weekly-challenge-tests'] })
+      toast({ title: enable ? 'Set as Weekly Challenge' : 'Weekly Challenge removed' })
+    },
     onError: (e: Error) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
   })
 
@@ -199,10 +220,15 @@ export default function CourseRepMockTests() {
           {tests?.map(test => (
             <div key={test.id} className="bg-white rounded-lg border border-brand-border p-4 flex items-center gap-4">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h3 className="font-semibold text-brand-text">{test.title}</h3>
                   <Badge variant={test.status === 'published' ? 'success' : 'outline'}>{test.status}</Badge>
                   <Badge variant="outline" className="text-xs">{test.department_id ? 'Department' : 'General'}</Badge>
+                  {test.is_weekly_challenge && (
+                    <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-300">
+                      <Trophy className="h-3 w-3 mr-1" /> Weekly Challenge
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-sm text-brand-grey">
                   {test.subject} · {test.time_limit} min · {formatDateShort(test.created_at)}
@@ -213,11 +239,23 @@ export default function CourseRepMockTests() {
                   </p>
                 )}
               </div>
-              <div className="flex gap-2 shrink-0">
+              <div className="flex gap-2 shrink-0 flex-wrap justify-end">
                 {test.status === 'draft' && (
                   <Button size="sm" className="bg-brand-primary hover:bg-brand-secondary h-8 text-xs"
                     onClick={() => publishMutation.mutate(test.id)} disabled={publishMutation.isPending}>
                     <CheckCircle className="h-3.5 w-3.5 mr-1" /> Publish
+                  </Button>
+                )}
+                {test.status === 'published' && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={`h-8 text-xs ${test.is_weekly_challenge ? 'border-amber-400 text-amber-700 hover:bg-amber-50' : 'text-brand-grey'}`}
+                    onClick={() => weeklyChallengeToggle.mutate({ testId: test.id, enable: !test.is_weekly_challenge })}
+                    disabled={weeklyChallengeToggle.isPending}
+                  >
+                    <Trophy className="h-3.5 w-3.5 mr-1" />
+                    {test.is_weekly_challenge ? 'Remove Challenge' : 'Set as Weekly Challenge'}
                   </Button>
                 )}
                 <Button size="sm" variant="ghost" className="h-8 text-xs text-red-500"

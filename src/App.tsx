@@ -28,6 +28,7 @@ import StudentInbox from '@/pages/student/Inbox'
 import StudentResults from '@/pages/student/Results'
 import StudentProfile from '@/pages/student/Profile'
 import StudentIssues from '@/pages/student/Issues'
+import StudentLeaderboard from '@/pages/student/Leaderboard'
 
 // Course Rep pages
 import CourseRepDashboard from '@/pages/courserep/Dashboard'
@@ -145,6 +146,7 @@ export default function App() {
         <Route path="payments" element={<StudentPayments />} />
         <Route path="timetable" element={<StudentTimetable />} />
         <Route path="exams" element={<StudentExams />} />
+        <Route path="leaderboard" element={<StudentLeaderboard />} />
         <Route path="inbox" element={<StudentInbox />} />
         <Route path="results" element={<StudentResults />} />
         <Route path="issues" element={<StudentIssues />} />

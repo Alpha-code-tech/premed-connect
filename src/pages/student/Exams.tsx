@@ -8,6 +8,7 @@ import {
   XCircle,
   BookOpen,
   AlertTriangle,
+  Trophy,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -74,6 +75,7 @@ export default function StudentExams() {
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [timeLeft, setTimeLeft] = useState(0)
+  const [examStartedAt, setExamStartedAt] = useState<number>(0)
   const [confirmSubmit, setConfirmSubmit] = useState(false)
   const [result, setResult] = useState<AttemptResult | null>(null)
   const [loadingExam, setLoadingExam] = useState(false)
@@ -136,9 +138,11 @@ export default function StudentExams() {
     mutationFn: async ({
       testId,
       submittedAnswers,
+      timeTakenSeconds,
     }: {
       testId: string
       submittedAnswers: Record<string, string>
+      timeTakenSeconds: number
     }): Promise<AttemptResult> => {
       // Fetch correct answers ONLY at submission time — never exposed beforehand
       const { data: correctData, error } = await supabase
@@ -176,6 +180,7 @@ export default function StudentExams() {
         total_questions: total,
         percentage: pct,
         submitted_at: new Date().toISOString(),
+        time_taken_seconds: timeTakenSeconds,
       })
       if (insertError) throw insertError
 
@@ -199,9 +204,11 @@ export default function StudentExams() {
       const test = activeTestRef.current
       if (!test) return
       setConfirmSubmit(false)
+      const timeTaken = Math.round((Date.now() - examStartedAt) / 1000)
       submitMutation.mutate({
         testId: test.id,
         submittedAnswers: answersRef.current,
+        timeTakenSeconds: timeTaken,
       })
     },
     // submitMutation is stable across renders; refs never change identity
@@ -229,7 +236,7 @@ export default function StudentExams() {
     // We intentionally only restart the timer when activeTest or result changes.
     // handleSubmit is stable thanks to useCallback.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTest, result])
+  }, [activeTest, result, examStartedAt])
 
   // ── Start exam ────────────────────────────────────────────────────────────
 
@@ -263,6 +270,7 @@ export default function StudentExams() {
     setAnswers(savedAnswers)
     setCurrentQ(0)
     setTimeLeft(test.time_limit * 60)
+    setExamStartedAt(Date.now())
     setResult(null)
   }
 
@@ -309,11 +317,21 @@ export default function StudentExams() {
                 >
                   {/* Card header */}
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-brand-text leading-snug">{test.title}</h3>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      {test.is_weekly_challenge && (
+                        <Trophy className="h-4 w-4 text-amber-500 shrink-0" />
+                      )}
+                      <h3 className="font-semibold text-brand-text leading-snug">{test.title}</h3>
+                    </div>
                     <Badge variant="outline" className="ml-2 shrink-0">
                       {test.subject}
                     </Badge>
                   </div>
+                  {test.is_weekly_challenge && (
+                    <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                      <Trophy className="h-3 w-3" /> Weekly Challenge — submit to appear on the leaderboard
+                    </div>
+                  )}
 
                   {/* Instructions preview */}
                   {test.instructions && (

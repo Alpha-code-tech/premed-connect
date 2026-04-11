@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import { Home, BookOpen, CreditCard, Calendar, FileText, Inbox, BarChart2, User, AlertCircle, GraduationCap } from 'lucide-react'
+import { Home, BookOpen, CreditCard, Calendar, FileText, Inbox, BarChart2, User, AlertCircle, GraduationCap, Trophy } from 'lucide-react'
 import { Navbar } from '@/components/shared/Navbar'
 import { Sidebar, MobileSidebar } from '@/components/shared/Sidebar'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
@@ -14,6 +14,7 @@ const navItems = [
   { label: 'Payments', href: '/dashboard/payments', icon: CreditCard },
   { label: 'Timetable', href: '/dashboard/timetable', icon: Calendar },
   { label: 'Exams', href: '/dashboard/exams', icon: FileText },
+  { label: 'Leaderboard', href: '/dashboard/leaderboard', icon: Trophy },
   { label: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { label: 'Results', href: '/dashboard/results', icon: BarChart2 },
   { label: 'Issues', href: '/dashboard/issues', icon: AlertCircle },

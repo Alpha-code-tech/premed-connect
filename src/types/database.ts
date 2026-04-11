@@ -341,6 +341,8 @@ export type Database = {
           department_id: string | null
           created_by: string
           created_at: string
+          is_weekly_challenge: boolean
+          weekly_challenge_start_date: string | null
         }
         Insert: {
           id?: string
@@ -352,6 +354,8 @@ export type Database = {
           department_id?: string | null
           created_by: string
           created_at?: string
+          is_weekly_challenge?: boolean
+          weekly_challenge_start_date?: string | null
         }
         Update: {
           id?: string
@@ -363,6 +367,8 @@ export type Database = {
           department_id?: string | null
           created_by?: string
           created_at?: string
+          is_weekly_challenge?: boolean
+          weekly_challenge_start_date?: string | null
         }
         Relationships: []
       }
@@ -416,6 +422,7 @@ export type Database = {
           percentage: number
           started_at: string
           submitted_at: string | null
+          time_taken_seconds: number | null
         }
         Insert: {
           id?: string
@@ -427,6 +434,7 @@ export type Database = {
           percentage: number
           started_at?: string
           submitted_at?: string | null
+          time_taken_seconds?: number | null
         }
         Update: {
           id?: string
@@ -438,6 +446,7 @@ export type Database = {
           percentage?: number
           started_at?: string
           submitted_at?: string | null
+          time_taken_seconds?: number | null
         }
         Relationships: []
       }
