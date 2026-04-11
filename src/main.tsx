@@ -6,6 +6,7 @@ import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import { ViewModeProvider } from './context/ViewModeContext.tsx'
+import { ThemeProvider } from './context/ThemeContext.tsx'
 import { Toaster } from './components/ui/toaster.tsx'
 
 const queryClient = new QueryClient({
@@ -29,12 +30,14 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ViewModeProvider>
-            <App />
-            <Toaster />
-          </ViewModeProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ViewModeProvider>
+              <App />
+              <Toaster />
+            </ViewModeProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>,

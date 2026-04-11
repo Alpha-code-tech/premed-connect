@@ -1,4 +1,4 @@
-import { Bell, Menu, LogOut, User, GraduationCap, LayoutDashboard } from 'lucide-react'
+import { Bell, Menu, LogOut, User, GraduationCap, LayoutDashboard, Sun, Moon } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useViewMode } from '@/context/ViewModeContext'
@@ -12,6 +12,7 @@ import { ROLE_ROUTES } from '@/lib/constants'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useToast } from '@/hooks/use-toast'
 import { formatDateShort } from '@/lib/utils'
+import { useTheme } from '@/context/ThemeContext'
 
 interface NavbarProps {
   onMenuClick?: () => void
@@ -20,6 +21,7 @@ interface NavbarProps {
 export function Navbar({ onMenuClick }: NavbarProps) {
   const { profile, signOut } = useAuth()
   const { isStudentMode, setViewMode } = useViewMode()
+  const { isDark, toggle: toggleTheme } = useTheme()
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -62,7 +64,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const dashboardRoute = profile ? ROLE_ROUTES[profile.role] : '/login'
 
   return (
-    <header className="sticky top-0 z-40 h-16 bg-white border-b border-brand-border flex items-center px-4 gap-4">
+    <header className="sticky top-0 z-40 h-16 bg-white dark:bg-gray-900 border-b border-brand-border flex items-center px-4 gap-4">
       <Button variant="ghost" size="icon" className="lg:hidden text-brand-grey" onClick={onMenuClick}>
         <Menu className="h-5 w-5" />
       </Button>
@@ -77,6 +79,15 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       <div className="flex-1" />
 
       <div className="flex items-center gap-2">
+        {/* Dark mode toggle */}
+        <button
+          onClick={toggleTheme}
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="w-9 h-9 flex items-center justify-center rounded-lg text-brand-grey hover:text-brand-primary hover:bg-brand-pale transition-colors"
+        >
+          {isDark ? <Sun className="h-4.5 w-4.5 h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+        </button>
+
         {/* Mode switcher — shown for all non-student roles */}
         {profile && profile.role !== 'student' && (
           <Button

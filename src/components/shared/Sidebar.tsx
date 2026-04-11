@@ -16,7 +16,7 @@ interface SidebarProps {
 
 export function Sidebar({ items, children }: SidebarProps) {
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-brand-border min-h-full">
+    <aside className="hidden lg:flex flex-col w-64 bg-white dark:bg-gray-900 border-r border-brand-border min-h-full">
       <nav className="flex-1 p-4 space-y-1">
         {items.map((item) => (
           <NavLink

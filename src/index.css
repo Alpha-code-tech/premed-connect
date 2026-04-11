@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    /* shadcn/ui tokens — light */
     --background: 138 60% 98%;
     --foreground: 150 60% 10%;
     --card: 0 0% 100%;
@@ -24,6 +25,49 @@
     --input: 138 35% 80%;
     --ring: 150 72% 21%;
     --radius: 0.5rem;
+
+    /* brand tokens — light */
+    --brand-primary:    13 68% 21%;    /* #0D5C2E */
+    --brand-secondary:  145 67% 32%;   /* #1A8A4A */
+    --brand-accent:     142 50% 52%;   /* #4DBD74 */
+    --brand-pale:       138 47% 94%;   /* #E8F5ED */
+    --brand-background: 138 60% 98%;   /* #F7FDF9 */
+    --brand-text:       150 60% 10%;   /* #0D2B18 */
+    --brand-grey:       145 15% 43%;   /* #5E7A68 */
+    --brand-border:     140 38% 77%;   /* #B2DBC2 */
+  }
+
+  .dark {
+    /* shadcn/ui tokens — dark */
+    --background: 150 35% 7%;
+    --foreground: 138 40% 92%;
+    --card: 150 30% 10%;
+    --card-foreground: 138 40% 92%;
+    --popover: 150 30% 10%;
+    --popover-foreground: 138 40% 92%;
+    --primary: 150 55% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 150 20% 16%;
+    --secondary-foreground: 138 40% 92%;
+    --muted: 150 15% 16%;
+    --muted-foreground: 138 15% 60%;
+    --accent: 150 20% 16%;
+    --accent-foreground: 138 40% 92%;
+    --destructive: 0 63% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 150 25% 19%;
+    --input: 150 25% 19%;
+    --ring: 150 55% 40%;
+
+    /* brand tokens — dark */
+    --brand-primary:    150 55% 40%;   /* lighter green for dark bg */
+    --brand-secondary:  145 52% 45%;
+    --brand-accent:     142 50% 52%;
+    --brand-pale:       150 25% 15%;   /* dark surface */
+    --brand-background: 150 35% 7%;    /* very dark green-black */
+    --brand-text:       138 40% 92%;   /* near-white */
+    --brand-grey:       138 18% 60%;   /* lighter grey */
+    --brand-border:     150 22% 20%;   /* subtle dark border */
   }
 }
 
@@ -34,5 +78,12 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  }
+  /* Make hardcoded bg-white / border-white surface-aware in dark mode */
+  .dark .bg-white {
+    background-color: hsl(var(--card)) !important;
+  }
+  .dark .border-white {
+    border-color: hsl(var(--border)) !important;
   }
 }
