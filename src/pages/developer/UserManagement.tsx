@@ -46,7 +46,6 @@ const PAGE_SIZE = 20
 async function invokeFn(name: string, body: object) {
   const { data: { session } } = await supabase.auth.getSession()
 
-  // 15-second timeout so the UI never hangs indefinitely
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 15000)
 
@@ -66,6 +65,11 @@ async function invokeFn(name: string, body: object) {
       }
       throw new Error(message)
     }
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.')
+    }
+    throw err
   } finally {
     clearTimeout(timeout)
   }
@@ -207,6 +211,7 @@ export default function DeveloperUserManagement() {
   const handleCreateClose = () => {
     setCreateOpen(false)
     setNewUser({ full_name: '', email: '', department_id: '', role: 'student', student_id: '' })
+    createUserMutation.reset()
   }
 
   const handlePasswordDialogClose = () => {

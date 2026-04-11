@@ -56,21 +56,26 @@ async function invokeFn(name: string, body: object) {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 15000)
   try {
-  const { error } = await supabase.functions.invoke(name, {
-    body,
-    headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
-    signal: controller.signal,
-  })
-  if (error) {
-    let message = error.message
-    if (error instanceof FunctionsHttpError) {
-      try {
-        const b = await error.context.json()
-        message = b.error || message
-      } catch { /* ignore */ }
+    const { error } = await supabase.functions.invoke(name, {
+      body,
+      headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+      signal: controller.signal,
+    })
+    if (error) {
+      let message = error.message
+      if (error instanceof FunctionsHttpError) {
+        try {
+          const b = await error.context.json()
+          message = b.error || message
+        } catch { /* ignore */ }
+      }
+      throw new Error(message)
     }
-    throw new Error(message)
-  }
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.')
+    }
+    throw err
   } finally {
     clearTimeout(timeout)
   }
