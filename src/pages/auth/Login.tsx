@@ -54,9 +54,22 @@ export default function Login() {
         ),
       ])
       error = result.error
-    } catch {
+    } catch (err) {
       setIsLoading(false)
-      toast({ title: 'Connection timed out', description: 'Check your internet connection and try again.', variant: 'destructive' })
+      if ((err as Error).message === 'timeout') {
+        // The Supabase client holds an internal storage lock during session refresh.
+        // If a previous page load left the lock stale (tab closed mid-refresh, network
+        // hiccup, etc.), signInWithPassword queues behind it and never resolves.
+        // Signing out locally clears the lock immediately — no network call needed.
+        await supabase.auth.signOut({ scope: 'local' })
+        toast({
+          title: 'Sign-in timed out',
+          description: 'A stale session was detected and cleared. Please try signing in again.',
+          variant: 'destructive',
+        })
+      } else {
+        toast({ title: 'Connection error', description: 'Check your internet connection and try again.', variant: 'destructive' })
+      }
       return
     }
     setIsLoading(false)
