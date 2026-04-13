@@ -18,38 +18,21 @@ export type InstallState =
   | 'ios'            // iOS Safari — Share → Add to Home Screen
   | 'unavailable'    // desktop Firefox etc.
 
-export interface PWAInstallInfo {
-  state: InstallState
-  promptInstall: () => Promise<'accepted' | 'dismissed' | 'unavailable'>
-  /** Diagnostic info — displayed in debug panel so issues can be reported */
-  debug: {
-    earlyPromptCaptured: boolean
-    isStandalone: boolean
-    ua: string
-  }
-}
-
-export function usePWAInstall(): PWAInstallInfo {
+export function usePWAInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [state, setState] = useState<InstallState>('unavailable')
-  const [debug, setDebug] = useState({ earlyPromptCaptured: false, isStandalone: false, ua: '' })
 
   useEffect(() => {
     const ua = navigator.userAgent
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as { standalone?: boolean }).standalone === true
-    const earlyPromptCaptured = !!window.__pwaInstallPrompt
 
-    // Emit diagnostics to console — check via chrome://inspect on desktop
     console.log('[PWA] hook init', {
       isStandalone,
-      earlyPromptCaptured,
-      hasHandler: typeof window.__pwaInstallPrompt !== 'undefined',
+      earlyPromptCaptured: !!window.__pwaInstallPrompt,
       ua: ua.slice(0, 120),
     })
-
-    setDebug({ earlyPromptCaptured, isStandalone, ua: ua.slice(0, 120) })
 
     if (isStandalone) {
       console.log('[PWA] already installed (standalone)')
@@ -115,5 +98,5 @@ export function usePWAInstall(): PWAInstallInfo {
     return outcome
   }
 
-  return { state, promptInstall, debug }
+  return { state, promptInstall }
 }

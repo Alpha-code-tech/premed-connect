@@ -17,7 +17,7 @@ interface InstallPWAProps {
 }
 
 export function InstallPWA({ variant = 'icon', className = '' }: InstallPWAProps) {
-  const { state, promptInstall, debug } = usePWAInstall()
+  const { state, promptInstall } = usePWAInstall()
   const [open, setOpen] = useState(false)
   const [installing, setInstalling] = useState(false)
 
@@ -129,17 +129,6 @@ export function InstallPWA({ variant = 'icon', className = '' }: InstallPWAProps
               <p className="text-brand-grey">Use <strong>Chrome</strong> or <strong>Edge</strong> on Android, or look for the <Download className="inline h-3.5 w-3.5 mx-0.5" /> icon in your desktop browser's address bar.</p>
             </div>
           )}
-
-          {/* Debug panel — shows detected state so issues can be reported */}
-          <details className="mt-2">
-            <summary className="text-[10px] text-brand-grey/60 cursor-pointer select-none">Debug info</summary>
-            <pre className="mt-1 text-[9px] text-brand-grey/60 whitespace-pre-wrap break-all leading-relaxed">
-{`state: ${state}
-standalone: ${debug.isStandalone}
-earlyCapture: ${debug.earlyPromptCaptured}
-ua: ${debug.ua}`}
-            </pre>
-          </details>
 
           <Button variant="ghost" size="sm" onClick={() => setOpen(false)} className="w-full mt-1 text-brand-grey">
             <X className="h-4 w-4 mr-1.5" /> Close
