@@ -18,7 +18,7 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
-        start_url: '/login',
+        start_url: '/',
         icons: [
           {
             src: '/pwa-192x192.png',
@@ -47,9 +47,6 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
         // Don't cache Supabase or Paystack API calls
         navigateFallback: '/index.html',
-        // Never serve cached HTML for auth or dashboard routes —
-        // always go to network so the app shell is always fresh
-        navigateFallbackDenylist: [/^\/login/, /^\/dashboard/, /^\/change-password/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
