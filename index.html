@@ -15,6 +15,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
     <script src="https://js.paystack.co/v1/inline.js"></script>
+  <!-- Capture beforeinstallprompt before React mounts — the event fires very
+       early and is gone by the time useEffect listeners attach. We stash it on
+       window so usePWAInstall can pick it up regardless of timing. -->
+  <script>
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      window.__pwaInstallPrompt = e;
+    });
+  </script>
   </head>
   <body>
     <div id="root"></div>

@@ -5,11 +5,17 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
+declare global {
+  interface Window {
+    __pwaInstallPrompt?: BeforeInstallPromptEvent
+  }
+}
+
 export type InstallState =
-  | 'installed'        // already running standalone
-  | 'promptable'       // Android/Chrome — native prompt available
-  | 'ios'              // iOS Safari — manual "Add to Home Screen"
-  | 'unavailable'      // everything else (Firefox, etc.)
+  | 'installed'    // already running standalone
+  | 'promptable'   // Android/Chrome — native prompt available
+  | 'ios'          // iOS Safari — must use Share → Add to Home Screen
+  | 'unavailable'  // everything else (Firefox, etc.)
 
 export function usePWAInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
@@ -28,13 +34,24 @@ export function usePWAInstall() {
 
     // iOS Safari — no beforeinstallprompt; user must use the Share sheet
     const ua = navigator.userAgent
-    const isIOS = /iphone|ipad|ipod/i.test(ua) && !(window as unknown as { MSStream?: unknown }).MSStream
+    const isIOS =
+      /iphone|ipad|ipod/i.test(ua) &&
+      !(window as unknown as { MSStream?: unknown }).MSStream
     if (isIOS) {
       setState('ios')
       return
     }
 
-    // Chrome / Edge / Samsung Internet on Android fires beforeinstallprompt
+    // The event fires very early — often before React mounts. index.html
+    // captures it globally so we can still use it here even if we missed it.
+    if (window.__pwaInstallPrompt) {
+      setDeferredPrompt(window.__pwaInstallPrompt)
+      setState('promptable')
+      delete window.__pwaInstallPrompt
+    }
+
+    // Also listen for any future fires (e.g. user dismissed once and Chrome
+    // shows it again later in the session).
     const handler = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
@@ -42,7 +59,6 @@ export function usePWAInstall() {
     }
     window.addEventListener('beforeinstallprompt', handler)
 
-    // Mark as installed once the user accepts
     const onInstalled = () => {
       setState('installed')
       setDeferredPrompt(null)
