@@ -271,6 +271,7 @@ const VISIONARIES = [
   // Course reps & ACRs alphabetically by last name
   { name: 'Abigail Ayomide',            role: 'Course Representative — Pharmacology', image: '/executives/Abigail Ayomide Pharmacology CR.jpg' },
   { name: 'Adeagbo David',              role: 'Course Representative — Nursing',     image: '/executives/Adeagbo David Nursing ACR.jpg' },
+  { name: 'Oluwamunumidun Ademeso',     role: 'Asst. Course Rep — Dentistry',        image: '/executives/Oluwamunumidun Ademeso ACR Dentistry.jpg' },
   { name: 'Attah Jennifer',             role: 'Asst. Course Rep — Nursing (NACON)',  image: '/executives/Attah Jennifer Nursing (NACON) ACR.jpg' },
   { name: 'Badmus Eniola',              role: 'Course Representative — Anatomy',     image: '/executives/Badmus Eniola Anatomy CR.jpg' },
   { name: 'Fred Praise Gold',           role: 'Asst. Course Rep — Physiology',       image: '/executives/Fred Praise Gold Physiology ACR.jpg' },
@@ -279,6 +280,7 @@ const VISIONARIES = [
   { name: 'Niyi-Odewale Seyifunmi',     role: 'Course Representative — Physiotherapy', image: '/executives/Niyi-Odewale Seyifunmi Physiotherapy CR.jpg' },
   { name: 'Qasim Munirat Adedoyin',     role: 'Asst. Course Rep — Pharmacology',     image: '/executives/Qasim Munirat Adedoyin ACR Pharmacology.jpg' },
   { name: 'Solomon Uduak',              role: 'Course Representative — Nursing (NACON)', image: '/executives/Solomon Uduak Nursing (NACON) CR.jpg' },
+  { name: 'Somoye Semilore Deborah',    role: 'Asst. Course Rep — Nursing Science',   image: '/executives/Somoye Semilore Deborah ACR Nursing.jpg' },
 ]
 
 function Visionaries() {
