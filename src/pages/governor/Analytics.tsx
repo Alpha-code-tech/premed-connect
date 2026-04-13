@@ -11,7 +11,7 @@ export default function GovernorAnalytics() {
     queryKey: ['governor-analytics'],
     queryFn: async () => {
       const [studentsRes, paymentsRes, resourcesRes, issuesRes, deptsRes] = await Promise.all([
-        supabase.from('profiles').select('department_id, created_at').eq('role', 'student'),
+        supabase.from('profiles').select('department_id, created_at').not('department_id', 'is', null),
         supabase.from('payments').select('amount, status, created_at, profiles:student_id(department_id)'),
         supabase.from('resources').select('subject, created_at'),
         supabase.from('issues').select('status, created_at'),
@@ -92,7 +92,7 @@ export default function GovernorAnalytics() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg border border-brand-border p-5">
-          <h2 className="font-semibold text-brand-text mb-4">Students per Department</h2>
+          <h2 className="font-semibold text-brand-text mb-4">Members per Department</h2>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={analyticsData?.studentsByDept} margin={{ left: -10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E8F5ED" />
@@ -112,7 +112,7 @@ export default function GovernorAnalytics() {
               <XAxis dataKey="month" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Line type="monotone" dataKey="count" stroke="#0D5C2E" strokeWidth={2} dot={{ fill: '#0D5C2E' }} name="New Students" />
+              <Line type="monotone" dataKey="count" stroke="#0D5C2E" strokeWidth={2} dot={{ fill: '#0D5C2E' }} name="New Members" />
             </LineChart>
           </ResponsiveContainer>
         </div>

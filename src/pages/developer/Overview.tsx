@@ -53,14 +53,14 @@ export default function DeveloperOverview() {
         supabase
           .from('profiles')
           .select('id', { count: 'exact', head: true })
-          .eq('role', 'student'),
+          .not('department_id', 'is', null),
         supabase
           .from('access_requests')
           .select('id', { count: 'exact', head: true })
           .eq('status', 'pending'),
         supabase.from('resources').select('id', { count: 'exact', head: true }),
         supabase.from('payments').select('amount').eq('status', 'successful'),
-        supabase.from('profiles').select('department_id').eq('role', 'student'),
+        supabase.from('profiles').select('department_id').not('department_id', 'is', null),
         supabase.from('departments').select('id, name'),
         supabase
           .from('audit_log')
@@ -100,7 +100,7 @@ export default function DeveloperOverview() {
   })
 
   const statCards: StatCard[] = [
-    { title: 'Total Students', value: stats?.totalStudents ?? 0, icon: Users },
+    { title: 'Total Members', value: stats?.totalStudents ?? 0, icon: Users },
     {
       title: 'Pending Requests',
       value: stats?.pendingRequests ?? 0,
@@ -159,7 +159,7 @@ export default function DeveloperOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Students per Department</CardTitle>
+            <CardTitle className="text-base">Members per Department</CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
@@ -194,7 +194,7 @@ export default function DeveloperOverview() {
                     dataKey="count"
                     fill="#0D5C2E"
                     radius={[4, 4, 0, 0]}
-                    name="Students"
+                    name="Members"
                   />
                 </BarChart>
               </ResponsiveContainer>

@@ -29,7 +29,7 @@ export default function CourseRepDashboard() {
         { data: recentAnnouncements },
         { data: recentIssues },
       ] = await Promise.all([
-        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('department_id', profile!.department_id!).eq('role', 'student'),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('department_id', profile!.department_id!),
         supabase.from('issues').select('id', { count: 'exact', head: true }).eq('status', 'open'),
         supabase.from('announcements').select('*').eq('department_id', profile!.department_id!).order('created_at', { ascending: false }).limit(3),
         supabase.from('issues').select('*, profiles(full_name)').order('created_at', { ascending: false }).limit(5),

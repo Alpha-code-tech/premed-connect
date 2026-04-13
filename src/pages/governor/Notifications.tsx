@@ -60,12 +60,12 @@ export default function GovernorNotifications() {
   })
 
   const { data: studentCount } = useQuery({
-    queryKey: ['student-count'],
+    queryKey: ['member-count'],
     queryFn: async () => {
       const { count } = await supabase
         .from('profiles')
         .select('id', { count: 'exact', head: true })
-        .eq('role', 'student')
+        .not('department_id', 'is', null)
       return count || 0
     },
   })
@@ -75,8 +75,8 @@ export default function GovernorNotifications() {
       const { data: students } = await supabase
         .from('profiles')
         .select('id')
-        .eq('role', 'student')
-      if (!students?.length) throw new Error('No students found')
+        .not('department_id', 'is', null)
+      if (!students?.length) throw new Error('No members found')
 
       const rows = students.map(s => ({
         student_id: s.id,
@@ -91,7 +91,7 @@ export default function GovernorNotifications() {
     },
     onSuccess: (count) => {
       queryClient.invalidateQueries({ queryKey: ['governor-notifications'] })
-      toast({ title: `Notification sent to ${count} students` })
+      toast({ title: `Notification sent to ${count} members` })
       form.reset()
       setSent(true)
       setTimeout(() => setSent(false), 3000)
@@ -109,7 +109,7 @@ export default function GovernorNotifications() {
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-brand-text">Notifications</h1>
-        <p className="text-brand-grey mt-1">Broadcast to all students</p>
+        <p className="text-brand-grey mt-1">Broadcast to all members</p>
       </div>
 
       <div className="bg-white rounded-lg border border-brand-border p-5">
@@ -117,7 +117,7 @@ export default function GovernorNotifications() {
           <Bell className="h-5 w-5 text-brand-primary" />
           <h2 className="font-semibold text-brand-text">Send Notification</h2>
           {studentCount !== undefined && (
-            <span className="text-xs text-brand-grey ml-auto">Will reach {studentCount} students</span>
+            <span className="text-xs text-brand-grey ml-auto">Will reach {studentCount} members</span>
           )}
         </div>
         <Form {...form}>
@@ -162,7 +162,7 @@ export default function GovernorNotifications() {
                 className={`${sent ? 'bg-green-600 hover:bg-green-700' : 'bg-brand-primary hover:bg-brand-secondary'}`}
                 disabled={sendMutation.isPending}
               >
-                {sendMutation.isPending ? 'Sending...' : sent ? 'Sent!' : 'Send to All Students'}
+                {sendMutation.isPending ? 'Sending...' : sent ? 'Sent!' : 'Send to All Members'}
               </Button>
             </div>
           </form>
