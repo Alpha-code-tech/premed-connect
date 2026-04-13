@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { UserProfile } from '@/types'
+import { useToast } from '@/hooks/use-toast'
 
 interface AuthContextType {
   user: User | null
@@ -48,8 +49,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
 
   useEffect(() => {
+    // If supabase.ts cleared a stale lock on startup, let the user know
+    // why their session was reset rather than showing a confusing login page
+    if (sessionStorage.getItem('supabase_lock_cleared')) {
+      sessionStorage.removeItem('supabase_lock_cleared')
+      toast({
+        title: 'Session reset',
+        description: 'A background sync issue was detected and fixed. Please sign in again.',
+        variant: 'destructive',
+      })
+    }
+
     // Hard cap: never show loading screen for more than 6 seconds
     const hardTimeout = setTimeout(() => setLoading(false), 6000)
 
