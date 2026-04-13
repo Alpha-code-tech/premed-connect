@@ -1,4 +1,5 @@
 import { Bell, Menu, LogOut, User, GraduationCap, LayoutDashboard, Sun, Moon } from 'lucide-react'
+import { InstallPWA } from '@/components/shared/InstallPWA'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useViewMode } from '@/context/ViewModeContext'
@@ -79,6 +80,9 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       <div className="flex-1" />
 
       <div className="flex items-center gap-2">
+        {/* PWA install */}
+        <InstallPWA variant="icon" />
+
         {/* Dark mode toggle */}
         <button
           onClick={toggleTheme}

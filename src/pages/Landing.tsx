@@ -10,6 +10,7 @@ import {
   Bell, FileText, FlaskConical, ShieldCheck,
   ChevronLeft, ChevronRight,
 } from 'lucide-react'
+import { InstallPWA } from '@/components/shared/InstallPWA'
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden items-center gap-3 lg:flex">
+            <InstallPWA variant="button" />
             <Button asChild variant="outline" size="sm" className="rounded-full">
               <Link to="/login">Sign In</Link>
             </Button>
@@ -93,6 +95,7 @@ function Navbar() {
               ))}
             </ul>
             <div className="flex flex-col gap-2">
+              <InstallPWA variant="button" className="w-full justify-center" />
               <Button asChild variant="outline" className="rounded-full">
                 <Link to="/login" onClick={() => setOpen(false)}>Sign In</Link>
               </Button>
