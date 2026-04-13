@@ -50,27 +50,37 @@ export default function Login() {
       const result = await Promise.race([
         supabase.auth.signInWithPassword({ email: data.email, password: data.password }),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 15000)
+          setTimeout(() => reject(new Error('timeout')), 8000)
         ),
       ])
       error = result.error
     } catch (err) {
-      setIsLoading(false)
       if ((err as Error).message === 'timeout') {
         // The Supabase client holds an internal storage lock during session refresh.
-        // If a previous page load left the lock stale (tab closed mid-refresh, network
-        // hiccup, etc.), signInWithPassword queues behind it and never resolves.
-        // Signing out locally clears the lock immediately — no network call needed.
+        // If a mid-session token refresh left the lock stale (network drop, tab
+        // backgrounded on Android, etc.), signInWithPassword queues behind it and
+        // never resolves. Clear the lock, then retry once automatically so the user
+        // doesn't have to click Sign In a second time.
         await supabase.auth.signOut({ scope: 'local' })
-        toast({
-          title: 'Sign-in timed out',
-          description: 'A stale session was detected and cleared. Please try signing in again.',
-          variant: 'destructive',
-        })
+        try {
+          const retry = await supabase.auth.signInWithPassword({ email: data.email, password: data.password })
+          if (!retry.error) {
+            sessionStorage.removeItem('login_attempts')
+            sessionStorage.removeItem('login_lockout_until')
+            setIsLoading(false)
+            return
+          }
+          error = retry.error
+        } catch {
+          setIsLoading(false)
+          toast({ title: 'Connection error', description: 'Check your internet connection and try again.', variant: 'destructive' })
+          return
+        }
       } else {
+        setIsLoading(false)
         toast({ title: 'Connection error', description: 'Check your internet connection and try again.', variant: 'destructive' })
+        return
       }
-      return
     }
     setIsLoading(false)
 

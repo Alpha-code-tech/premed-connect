@@ -101,6 +101,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // ── Lock watchdog ────────────────────────────────────────────────────────────
+  // Supabase's background token refresh (every ~60 min) can leave the storage
+  // lock stuck if it's interrupted mid-flight (network drop, Android backgrounding
+  // the tab, etc.). When that happens every subsequent Supabase call hangs.
+  // We probe the lock every 90 seconds while the user is logged in; getSession()
+  // is instant when the lock is free. If it hangs past 3 seconds we force-clear
+  // it so the next operation (or a fresh login attempt) works immediately.
+  useEffect(() => {
+    if (!user) return
+    const watchdog = setInterval(async () => {
+      const stuck = await Promise.race([
+        supabase.auth.getSession().then(() => false, () => false),
+        new Promise<true>(resolve => setTimeout(() => resolve(true), 3000)),
+      ])
+      if (stuck) {
+        console.warn('[Supabase] Lock stuck mid-session — clearing')
+        await supabase.auth.signOut({ scope: 'local' })
+      }
+    }, 90_000)
+    return () => clearInterval(watchdog)
+  }, [user])
+
   const refreshProfile = async () => {
     if (user) {
       const p = await fetchProfile(user.id)
