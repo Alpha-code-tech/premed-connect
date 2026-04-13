@@ -18,13 +18,13 @@ export default function GovernorDepartments() {
     },
   })
 
-  const { data: students, isLoading } = useQuery({
-    queryKey: ['governor-all-students'],
+  const { data: members, isLoading } = useQuery({
+    queryKey: ['governor-all-members'],
     queryFn: async () => {
       const { data } = await supabase
         .from('profiles')
         .select('id, full_name, email, student_id, department_id, role')
-        .eq('role', 'student')
+        .not('department_id', 'is', null)
         .order('full_name')
       return data || []
     },
@@ -35,10 +35,10 @@ export default function GovernorDepartments() {
   const deptCounts = (departments || []).map(dept => ({
     id: dept.id,
     name: dept.name,
-    count: students?.filter(s => s.department_id === dept.id).length ?? 0,
+    count: members?.filter(s => s.department_id === dept.id).length ?? 0,
   }))
 
-  const filtered = students?.filter(s => {
+  const filtered = members?.filter(s => {
     const matchDept = !selectedDept || s.department_id === selectedDept
     const matchSearch = !search ||
       s.full_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -53,7 +53,7 @@ export default function GovernorDepartments() {
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-brand-text">Departments</h1>
-        <p className="text-brand-grey mt-1">Students across all departments</p>
+        <p className="text-brand-grey mt-1">Members across all departments</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -78,12 +78,12 @@ export default function GovernorDepartments() {
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-brand-grey" />
             <span className="text-sm font-medium text-brand-text">
-              {selectedDeptName ? `${selectedDeptName} (${filtered?.length ?? 0})` : `All Students (${students?.length ?? 0})`}
+              {selectedDeptName ? `${selectedDeptName} (${filtered?.length ?? 0})` : `All Members (${members?.length ?? 0})`}
             </span>
           </div>
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-grey" />
-            <Input placeholder="Search students..." className="pl-9 h-8 text-sm" value={search} onChange={e => setSearch(e.target.value)} />
+            <Input placeholder="Search members..." className="pl-9 h-8 text-sm" value={search} onChange={e => setSearch(e.target.value)} />
           </div>
         </div>
 
@@ -93,7 +93,7 @@ export default function GovernorDepartments() {
           </div>
         ) : filtered?.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-brand-grey text-sm">No students found</p>
+            <p className="text-brand-grey text-sm">No members found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -104,6 +104,7 @@ export default function GovernorDepartments() {
                   <th className="text-left px-4 py-2 font-medium">Student ID</th>
                   <th className="text-left px-4 py-2 font-medium">Email</th>
                   <th className="text-left px-4 py-2 font-medium">Department</th>
+                  <th className="text-left px-4 py-2 font-medium">Role</th>
                 </tr>
               </thead>
               <tbody>
@@ -114,6 +115,9 @@ export default function GovernorDepartments() {
                     <td className="px-4 py-3 text-brand-grey">{s.email}</td>
                     <td className="px-4 py-3">
                       <Badge variant="outline" className="text-xs">{deptMap[s.department_id ?? ''] || s.department_id}</Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant="secondary" className="text-xs capitalize">{s.role?.replace(/_/g, ' ')}</Badge>
                     </td>
                   </tr>
                 ))}

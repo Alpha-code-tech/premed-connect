@@ -10,7 +10,7 @@ export default function GovernorDashboard() {
     queryKey: ['governor-stats'],
     queryFn: async () => {
       const [studentsRes, paymentsRes, announcementsRes, resourcesRes] = await Promise.all([
-        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'student'),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).not('department_id', 'is', null),
         supabase.from('payments').select('amount').eq('status', 'successful'),
         supabase.from('announcements').select('id', { count: 'exact', head: true }),
         supabase.from('resources').select('id', { count: 'exact', head: true }),
@@ -29,7 +29,7 @@ export default function GovernorDashboard() {
     queryKey: ['governor-dept-stats'],
     queryFn: async () => {
       const [profilesRes, deptsRes] = await Promise.all([
-        supabase.from('profiles').select('department_id').eq('role', 'student'),
+        supabase.from('profiles').select('department_id').not('department_id', 'is', null),
         supabase.from('departments').select('id, name'),
       ])
       if (!profilesRes.data) return []
@@ -58,7 +58,7 @@ export default function GovernorDashboard() {
   })
 
   const statCards = [
-    { label: 'Total Students', value: stats?.students ?? 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', to: '/governor/departments' },
+    { label: 'Total Members', value: stats?.students ?? 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', to: '/governor/departments' },
     { label: 'Total Revenue', value: formatCurrency(stats?.revenue ?? 0), icon: CreditCard, color: 'text-green-600', bg: 'bg-green-50', to: '/governor/payments' },
     { label: 'Announcements', value: stats?.announcements ?? 0, icon: Megaphone, color: 'text-purple-600', bg: 'bg-purple-50', to: '/governor/announcements' },
     { label: 'Resources', value: stats?.resources ?? 0, icon: BookOpen, color: 'text-orange-600', bg: 'bg-orange-50', to: '/governor/analytics' },
@@ -91,7 +91,7 @@ export default function GovernorDashboard() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg border border-brand-border p-5">
-          <h2 className="font-semibold text-brand-text mb-4">Students by Department</h2>
+          <h2 className="font-semibold text-brand-text mb-4">Members by Department</h2>
           {deptLoading ? (
             <div className="space-y-2">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}</div>
           ) : deptStats?.length === 0 ? (
