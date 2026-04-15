@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { UserProfile } from '@/types'
-import { useToast } from '@/hooks/use-toast'
 
 interface AuthContextType {
   user: User | null
@@ -25,9 +24,8 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 async function fetchProfile(userId: string): Promise<UserProfile | null> {
-  // Abort if profile fetch hangs for more than 8 seconds
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 8000)
+  const timeout = setTimeout(() => controller.abort(), 10000)
   try {
     const { data, error } = await supabase
       .from('profiles')
@@ -49,49 +47,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
 
   useEffect(() => {
-    // If supabase.ts cleared a stale lock on startup, let the user know
-    // why their session was reset rather than showing a confusing login page
-    if (sessionStorage.getItem('supabase_lock_cleared')) {
-      sessionStorage.removeItem('supabase_lock_cleared')
-      toast({
-        title: 'Session reset',
-        description: 'A background sync issue was detected and fixed. Please sign in again.',
-        variant: 'destructive',
-      })
-    }
+    // Hard cap: if onAuthStateChange never fires (e.g. network issue),
+    // release the loading screen after 10 seconds so the user isn't stuck.
+    const hardTimeout = setTimeout(() => setLoading(false), 10000)
 
-    // Hard cap: never show loading screen for more than 6 seconds
-    const hardTimeout = setTimeout(() => setLoading(false), 6000)
-
-    // Rely solely on onAuthStateChange — it fires INITIAL_SESSION on mount,
-    // which is equivalent to getSession() but without the race condition of
-    // running two simultaneous fetchProfile calls.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, s) => {
-        setSession(s)
-        setUser(s?.user ?? null)
+        try {
+          setSession(s)
+          setUser(s?.user ?? null)
 
-        // USER_UPDATED only reflects auth-layer changes (password/email),
-        // not profile table changes — skip re-fetching to avoid overwriting
-        // optimistic profile updates already applied by updateProfile()
-        if (event === 'USER_UPDATED') {
+          // USER_UPDATED reflects auth-layer changes (password/email) only —
+          // skip re-fetching to avoid overwriting optimistic profile updates.
+          if (event === 'USER_UPDATED') return
+
+          if (s?.user) {
+            const p = await fetchProfile(s.user.id)
+            setProfile(p)
+          } else {
+            setProfile(null)
+          }
+        } finally {
+          // Always clear loading, even if fetchProfile threw or was aborted.
           setLoading(false)
           clearTimeout(hardTimeout)
-          return
         }
-
-        if (s?.user) {
-          const p = await fetchProfile(s.user.id)
-          setProfile(p)
-        } else {
-          setProfile(null)
-        }
-
-        setLoading(false)
-        clearTimeout(hardTimeout)
       }
     )
 
@@ -100,28 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(hardTimeout)
     }
   }, [])
-
-  // ── Lock watchdog ────────────────────────────────────────────────────────────
-  // Supabase's background token refresh (every ~60 min) can leave the storage
-  // lock stuck if it's interrupted mid-flight (network drop, Android backgrounding
-  // the tab, etc.). When that happens every subsequent Supabase call hangs.
-  // We probe the lock every 90 seconds while the user is logged in; getSession()
-  // is instant when the lock is free. If it hangs past 3 seconds we force-clear
-  // it so the next operation (or a fresh login attempt) works immediately.
-  useEffect(() => {
-    if (!user) return
-    const watchdog = setInterval(async () => {
-      const stuck = await Promise.race([
-        supabase.auth.getSession().then(() => false, () => false),
-        new Promise<true>(resolve => setTimeout(() => resolve(true), 3000)),
-      ])
-      if (stuck) {
-        console.warn('[Supabase] Lock stuck mid-session — clearing')
-        await supabase.auth.signOut({ scope: 'local' })
-      }
-    }, 90_000)
-    return () => clearInterval(watchdog)
-  }, [user])
 
   const refreshProfile = async () => {
     if (user) {
@@ -135,10 +95,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    setProfile(null)
-    setSession(null)
+    try {
+      // Attempt a global sign-out (invalidates all sessions server-side).
+      // Give it 10 seconds; if it times out on a slow network we still
+      // proceed with local cleanup so the user is never left stuck.
+      await Promise.race([
+        supabase.auth.signOut({ scope: 'global' }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 10000)
+        ),
+      ])
+    } catch {
+      // Timeout or network error — local cleanup still runs below.
+    } finally {
+      // Clear all local storage so no stale session or lock data remains.
+      localStorage.clear()
+      sessionStorage.clear()
+      setUser(null)
+      setProfile(null)
+      setSession(null)
+      // Hard redirect — forces a full page reload which guarantees all
+      // in-memory state is wiped. Never use router.navigate for sign-out.
+      window.location.href = '/login'
+    }
   }
 
   return (

@@ -45,61 +45,40 @@ export default function Login() {
     }
 
     setIsLoading(true)
-    let error: Error | null = null
     try {
       const result = await Promise.race([
         supabase.auth.signInWithPassword({ email: data.email, password: data.password }),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 8000)
+          setTimeout(() => reject(new Error('timeout')), 10000)
         ),
       ])
-      error = result.error
-    } catch (err) {
-      if ((err as Error).message === 'timeout') {
-        // The Supabase client holds an internal storage lock during session refresh.
-        // If a mid-session token refresh left the lock stale (network drop, tab
-        // backgrounded on Android, etc.), signInWithPassword queues behind it and
-        // never resolves. Clear the lock, then retry once automatically so the user
-        // doesn't have to click Sign In a second time.
-        await supabase.auth.signOut({ scope: 'local' })
-        try {
-          const retry = await supabase.auth.signInWithPassword({ email: data.email, password: data.password })
-          if (!retry.error) {
-            sessionStorage.removeItem('login_attempts')
-            sessionStorage.removeItem('login_lockout_until')
-            setIsLoading(false)
-            return
-          }
-          error = retry.error
-        } catch {
-          setIsLoading(false)
-          toast({ title: 'Connection error', description: 'Check your internet connection and try again.', variant: 'destructive' })
-          return
+
+      if (result.error) {
+        const newCount = attemptCount + 1
+        setAttemptCount(newCount)
+        sessionStorage.setItem('login_attempts', String(newCount))
+        if (newCount >= 5) {
+          const lockout = new Date(Date.now() + 60000)
+          setLockoutUntil(lockout)
+          sessionStorage.setItem('login_lockout_until', lockout.toISOString())
+          toast({ title: 'Account temporarily locked', description: 'Too many failed attempts. Please wait 1 minute before trying again.', variant: 'destructive' })
+        } else {
+          toast({ title: 'Login failed', description: 'Invalid email or password.', variant: 'destructive' })
         }
-      } else {
-        setIsLoading(false)
-        toast({ title: 'Connection error', description: 'Check your internet connection and try again.', variant: 'destructive' })
         return
       }
-    }
-    setIsLoading(false)
 
-    if (!error) {
+      // Success — AuthContext onAuthStateChange will handle the redirect
       sessionStorage.removeItem('login_attempts')
       sessionStorage.removeItem('login_lockout_until')
-      return
-    }
-
-    const newCount = attemptCount + 1
-    setAttemptCount(newCount)
-    sessionStorage.setItem('login_attempts', String(newCount))
-    if (newCount >= 5) {
-      const lockout = new Date(Date.now() + 60000)
-      setLockoutUntil(lockout)
-      sessionStorage.setItem('login_lockout_until', lockout.toISOString())
-      toast({ title: 'Account temporarily locked', description: 'Too many failed attempts. Please wait 1 minute before trying again.', variant: 'destructive' })
-    } else {
-      toast({ title: 'Login failed', description: 'Invalid email or password.', variant: 'destructive' })
+    } catch (err) {
+      if ((err as Error).message === 'timeout') {
+        toast({ title: 'Connection is slow', description: 'Please check your network and try again.', variant: 'destructive' })
+      } else {
+        toast({ title: 'Connection error', description: 'Check your internet connection and try again.', variant: 'destructive' })
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
