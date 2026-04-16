@@ -80,13 +80,13 @@ export default function FinancialDashboard() {
   ]
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Financial Dashboard</h1>
-        <p className="text-brand-grey mt-1">Payment summary and revenue breakdown</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Financial Dashboard</h1>
+        <p className="text-brand-grey mt-1 text-sm">Payment summary and revenue breakdown</p>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statCards.map(card => (
           <div key={card.label} className="bg-white rounded-lg border border-brand-border p-5">
             {isLoading ? (
@@ -96,7 +96,7 @@ export default function FinancialDashboard() {
                 <div className={`w-10 h-10 rounded-lg ${card.bg} flex items-center justify-center mb-3`}>
                   <card.icon className={`h-5 w-5 ${card.color}`} />
                 </div>
-                <p className="text-2xl font-bold text-brand-text">{card.value}</p>
+                <p className="text-xl sm:text-2xl font-bold text-brand-text">{card.value}</p>
                 <p className="text-sm text-brand-grey mt-0.5">{card.label}</p>
               </>
             )}
@@ -104,7 +104,7 @@ export default function FinancialDashboard() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white rounded-lg border border-brand-border p-5">
           <h2 className="font-semibold text-brand-text mb-4">Revenue by Department</h2>
           {isLoading ? (

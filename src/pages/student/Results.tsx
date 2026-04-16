@@ -26,10 +26,10 @@ export default function StudentResults() {
   })
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-brand-text">Results</h1>
-        <p className="text-brand-grey mt-1">Download your academic results</p>
+    <div className="p-3 sm:p-6 max-w-4xl mx-auto">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Results</h1>
+        <p className="text-brand-grey mt-1 text-sm">Download your academic results</p>
       </div>
       {isLoading ? (
         <div className="grid sm:grid-cols-2 gap-4">

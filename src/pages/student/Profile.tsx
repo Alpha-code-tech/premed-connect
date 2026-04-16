@@ -89,14 +89,14 @@ export default function StudentProfile() {
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-2xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Profile</h1>
-        <p className="text-brand-grey mt-1">Manage your account settings</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Profile</h1>
+        <p className="text-brand-grey mt-1 text-sm">Manage your account settings</p>
       </div>
 
-      <div className="bg-white rounded-lg border border-brand-border p-6">
-        <div className="flex items-start gap-6">
+      <div className="bg-white rounded-lg border border-brand-border p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
           <div className="relative">
             <Avatar className="h-20 w-20">
               {profile?.avatar_url && <AvatarImage src={profile.avatar_url} />}
@@ -134,7 +134,7 @@ export default function StudentProfile() {
         )}
       </div>
 
-      <div className="bg-white rounded-lg border border-brand-border p-6">
+      <div className="bg-white rounded-lg border border-brand-border p-4 sm:p-6">
         <h3 className="font-semibold text-brand-text mb-4">Change Password</h3>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onPasswordSubmit)} className="space-y-4">
@@ -152,7 +152,7 @@ export default function StudentProfile() {
                 <FormMessage />
               </FormItem>
             )} />
-            <Button type="submit" className="bg-brand-primary hover:bg-brand-secondary" disabled={changingPassword}>
+            <Button type="submit" className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" disabled={changingPassword}>
               {changingPassword ? 'Updating...' : 'Update Password'}
             </Button>
           </form>

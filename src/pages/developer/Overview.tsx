@@ -116,14 +116,14 @@ export default function DeveloperOverview() {
   ]
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-7xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Platform Overview</h1>
-        <p className="text-brand-grey mt-1">Live statistics and activity feed</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Platform Overview</h1>
+        <p className="text-brand-grey mt-1 text-sm">Live statistics and activity feed</p>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statsLoading
           ? [...Array(4)].map((_, i) => (
               <Skeleton key={i} className="h-28 w-full" />
@@ -144,7 +144,7 @@ export default function DeveloperOverview() {
                     </div>
                   </div>
                   <p
-                    className={`text-2xl font-bold ${
+                    className={`text-xl sm:text-2xl font-bold ${
                       alert ? 'text-red-600' : 'text-brand-text'
                     }`}
                   >
@@ -156,7 +156,7 @@ export default function DeveloperOverview() {
       </div>
 
       {/* Chart + activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Members per Department</CardTitle>

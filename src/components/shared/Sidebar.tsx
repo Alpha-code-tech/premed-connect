@@ -24,13 +24,13 @@ export function Sidebar({ items, children }: SidebarProps) {
             to={item.href}
             end={item.href.endsWith('/') || item.href.split('/').length === 2}
             className={({ isActive }) => cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+              'flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px]',
               isActive
                 ? 'bg-brand-pale text-brand-primary'
                 : 'text-brand-grey hover:bg-brand-pale/60 hover:text-brand-primary'
             )}
           >
-            <item.icon className="h-4 w-4 shrink-0" />
+            <item.icon className="h-5 w-5 shrink-0" />
             {item.label}
           </NavLink>
         ))}
@@ -42,7 +42,7 @@ export function Sidebar({ items, children }: SidebarProps) {
 
 export function MobileSidebar({ items, onClose }: SidebarProps & { onClose: () => void }) {
   return (
-    <nav className="p-4 space-y-1">
+    <nav className="p-3 space-y-1">
       {items.map((item) => (
         <NavLink
           key={item.href}
@@ -50,13 +50,13 @@ export function MobileSidebar({ items, onClose }: SidebarProps & { onClose: () =
           end={item.href.endsWith('/') || item.href.split('/').length === 2}
           onClick={onClose}
           className={({ isActive }) => cn(
-            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+            'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors min-h-[48px]',
             isActive
               ? 'bg-brand-pale text-brand-primary'
               : 'text-brand-grey hover:bg-brand-pale/60 hover:text-brand-primary'
           )}
         >
-          <item.icon className="h-4 w-4 shrink-0" />
+          <item.icon className="h-5 w-5 shrink-0" />
           {item.label}
         </NavLink>
       ))}

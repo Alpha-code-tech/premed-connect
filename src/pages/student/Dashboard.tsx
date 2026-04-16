@@ -197,10 +197,10 @@ export default function StudentDashboard() {
 
       {/* ── Dark gradient hero header ────────────────────────────────────────── */}
       <div
-        className="px-6 py-8 md:px-10"
+        className="px-4 py-6 sm:px-6 sm:py-8 md:px-10"
         style={{ background: 'linear-gradient(135deg, #0D5C2E 0%, #16A085 100%)' }}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-6 flex-wrap">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
 
           {/* Left: greeting, date, dept, quote */}
           <div className="flex-1 min-w-0 space-y-2">
@@ -230,43 +230,43 @@ export default function StudentDashboard() {
       </div>
 
       {/* ── Main content ─────────────────────────────────────────────────────── */}
-      <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
+      <div className="p-3 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl mx-auto w-full">
 
         {/* Stat cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg border border-brand-border p-4">
-            {paymentsLoading ? <Skeleton className="h-16 w-full" /> : (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="bg-white rounded-lg border border-brand-border p-3 sm:p-4">
+            {paymentsLoading ? <Skeleton className="h-14 w-full" /> : (
               <>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-brand-grey">Pending Payments</p>
-                  <div className="w-8 h-8 rounded-lg bg-brand-pale flex items-center justify-center">
-                    <CreditCard className="h-4 w-4 text-brand-primary" />
+                  <p className="text-xs sm:text-sm text-brand-grey">Payments Due</p>
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-brand-pale flex items-center justify-center shrink-0">
+                    <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-brand-primary" />
                   </div>
                 </div>
-                <p className="text-2xl font-bold text-brand-text">{pendingPayments ?? 0}</p>
-                <p className="text-xs text-brand-grey mt-1">Awaiting your action</p>
+                <p className="text-xl sm:text-2xl font-bold text-brand-text">{pendingPayments ?? 0}</p>
+                <p className="text-xs text-brand-grey mt-1 hidden sm:block">Awaiting your action</p>
               </>
             )}
           </div>
-          <div className="bg-white rounded-lg border border-brand-border p-4">
-            {notificationsLoading ? <Skeleton className="h-16 w-full" /> : (
+          <div className="bg-white rounded-lg border border-brand-border p-3 sm:p-4">
+            {notificationsLoading ? <Skeleton className="h-14 w-full" /> : (
               <>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-brand-grey">Unread Notifications</p>
-                  <div className="w-8 h-8 rounded-lg bg-brand-pale flex items-center justify-center">
-                    <Bell className="h-4 w-4 text-brand-primary" />
+                  <p className="text-xs sm:text-sm text-brand-grey">Unread</p>
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-brand-pale flex items-center justify-center shrink-0">
+                    <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-brand-primary" />
                   </div>
                 </div>
-                <p className="text-2xl font-bold text-brand-text">{unreadNotifications ?? 0}</p>
-                <p className="text-xs text-brand-grey mt-1">New notifications</p>
+                <p className="text-xl sm:text-2xl font-bold text-brand-text">{unreadNotifications ?? 0}</p>
+                <p className="text-xs text-brand-grey mt-1 hidden sm:block">New notifications</p>
               </>
             )}
           </div>
-          <div className="bg-white rounded-lg border border-brand-border p-4">
+          <div className="bg-white rounded-lg border border-brand-border p-3 sm:p-4 col-span-2 lg:col-span-1">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm text-brand-grey">Department</p>
-              <div className="w-8 h-8 rounded-lg bg-brand-pale flex items-center justify-center">
-                <BookOpen className="h-4 w-4 text-brand-primary" />
+              <p className="text-xs sm:text-sm text-brand-grey">Department</p>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-brand-pale flex items-center justify-center shrink-0">
+                <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-brand-primary" />
               </div>
             </div>
             <p className="text-sm font-bold text-brand-text line-clamp-2">{department?.name || 'N/A'}</p>
@@ -274,7 +274,7 @@ export default function StudentDashboard() {
         </div>
 
         {/* Announcements + Upcoming Sessions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="lg:col-span-2">
             <Card>
               <CardHeader className="pb-3">
@@ -287,7 +287,7 @@ export default function StudentDashboard() {
                   ? [...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
                   : announcements?.length === 0
                     ? <p className="text-sm text-brand-grey text-center py-4">No announcements yet</p>
-                    : announcements?.map((a) => (
+                    : announcements?.slice(0, 3).map((a) => (
                       <div key={a.id} className="p-3 rounded-lg bg-brand-pale/50 border border-brand-border">
                         <h3 className="font-medium text-sm text-brand-text">{a.title}</h3>
                         <p className="text-xs text-brand-grey mt-1 line-clamp-2">{a.body}</p>
@@ -345,8 +345,8 @@ export default function StudentDashboard() {
             ) : resources?.length === 0 ? (
               <p className="text-sm text-brand-grey text-center py-4">No resources available yet</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {resources?.map((r) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+                {resources?.slice(0, 3).map((r) => (
                   <div key={r.id} className="p-3 rounded-lg bg-brand-pale/50 border border-brand-border">
                     <Badge variant="outline" className="text-xs mb-1">{r.file_type}</Badge>
                     <p className="text-sm font-medium text-brand-text line-clamp-1">{r.title}</p>

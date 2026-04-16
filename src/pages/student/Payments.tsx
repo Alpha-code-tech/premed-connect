@@ -172,7 +172,7 @@ export default function StudentPayments() {
 
   if (isLoading) {
     return (
-      <div className="p-6 space-y-4 max-w-4xl mx-auto">
+      <div className="p-3 sm:p-6 space-y-4 max-w-4xl mx-auto">
         <Skeleton className="h-8 w-48" />
         {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}
       </div>
@@ -180,10 +180,10 @@ export default function StudentPayments() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Payments</h1>
-        <p className="text-brand-grey mt-1">Manage your payment obligations</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Payments</h1>
+        <p className="text-brand-grey mt-1 text-sm">Manage your payment obligations</p>
       </div>
 
       <div className="space-y-4">
@@ -199,7 +199,7 @@ export default function StudentPayments() {
           const daysLeft = getDaysRemaining(item.deadline)
           const isOverdue = daysLeft < 0
           return (
-            <div key={item.id} className="bg-white rounded-lg border border-brand-border p-5">
+            <div key={item.id} className="bg-white rounded-lg border border-brand-border p-4 sm:p-5">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">

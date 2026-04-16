@@ -50,10 +50,10 @@ export default function GovernorDepartments() {
   const selectedDeptName = selectedDept ? deptMap[selectedDept] : null
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Departments</h1>
-        <p className="text-brand-grey mt-1">Members across all departments</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Departments</h1>
+        <p className="text-brand-grey mt-1 text-sm">Members across all departments</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">

@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { formatDate } from '@/lib/utils'
 import type { Announcement } from '@/types'
 
@@ -28,12 +29,15 @@ export default function StudentInbox() {
   })
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-brand-text">Inbox</h1>
-        <p className="text-brand-grey mt-1">Announcements from your department and PreMed Set</p>
+    <div className="p-3 sm:p-6 max-w-5xl mx-auto">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Inbox</h1>
+        <p className="text-brand-grey mt-1 text-sm">Announcements from your department and PreMed Set</p>
       </div>
-      <div className="flex gap-4 h-[calc(100vh-220px)]">
+
+      {/* Mobile: full-width list, tap to open dialog */}
+      {/* Desktop sm+: two-column split layout */}
+      <div className="flex gap-4 sm:h-[calc(100vh-220px)]">
         <div className="flex-1 overflow-auto space-y-2">
           {isLoading ? (
             [...Array(5)].map((_, i) => <Skeleton key={i} className="h-20 w-full" />)
@@ -50,7 +54,7 @@ export default function StudentInbox() {
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="font-medium text-sm text-brand-text">{a.title}</h3>
                     {!a.department_id && <Badge variant="outline" className="text-xs">All Depts</Badge>}
                   </div>
@@ -63,11 +67,12 @@ export default function StudentInbox() {
           ))}
         </div>
 
+        {/* Desktop side panel */}
         {selected && (
           <div className="hidden sm:block w-80 lg:w-96 bg-white rounded-lg border border-brand-border p-4 overflow-auto">
             <div className="flex items-start justify-between mb-4">
               <h2 className="font-semibold text-brand-text pr-4">{selected.title}</h2>
-              <button onClick={() => setSelected(null)} className="text-brand-grey hover:text-brand-text">
+              <button onClick={() => setSelected(null)} className="text-brand-grey hover:text-brand-text min-w-[44px] min-h-[44px] flex items-center justify-center">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -76,6 +81,19 @@ export default function StudentInbox() {
           </div>
         )}
       </div>
+
+      {/* Mobile dialog for reading announcements */}
+      <Dialog open={!!selected} onOpenChange={open => { if (!open) setSelected(null) }}>
+        <DialogContent className="sm:hidden max-w-[calc(100vw-2rem)] w-full rounded-xl mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base leading-snug pr-6">{selected?.title}</DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-brand-grey -mt-1">{selected ? formatDate(selected.created_at) : ''}</p>
+          <div className="overflow-y-auto max-h-[60vh]">
+            <p className="text-sm text-brand-text leading-relaxed whitespace-pre-wrap">{selected?.body}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

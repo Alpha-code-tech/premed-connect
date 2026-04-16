@@ -69,10 +69,10 @@ export default function StudentResources() {
   })
 
   return (
-    <div className="p-6 space-y-6 max-w-6xl mx-auto">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Resources</h1>
-        <p className="text-brand-grey mt-1">Access study materials and course resources</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Resources</h1>
+        <p className="text-brand-grey mt-1 text-sm">Access study materials and course resources</p>
       </div>
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
@@ -80,7 +80,7 @@ export default function StudentResources() {
           <Input placeholder="Search resources..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-          <SelectTrigger className="w-48"><SelectValue placeholder="Filter by subject" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Filter by subject" /></SelectTrigger>
           <SelectContent>
             {subjects.map(s => <SelectItem key={s} value={s}>{s === 'all' ? 'All Subjects' : s}</SelectItem>)}
           </SelectContent>

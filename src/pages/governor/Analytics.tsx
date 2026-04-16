@@ -74,9 +74,9 @@ export default function GovernorAnalytics() {
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-6xl mx-auto space-y-6">
+      <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
         <Skeleton className="h-8 w-48" />
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-72 w-full" />)}
         </div>
       </div>
@@ -86,11 +86,11 @@ export default function GovernorAnalytics() {
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Analytics</h1>
-        <p className="text-brand-grey mt-1">PreMed Set performance overview</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Analytics</h1>
+        <p className="text-brand-grey mt-1 text-sm">PreMed Set performance overview</p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white rounded-lg border border-brand-border p-5">
           <h2 className="font-semibold text-brand-text mb-4">Members per Department</h2>
           <ResponsiveContainer width="100%" height={250}>

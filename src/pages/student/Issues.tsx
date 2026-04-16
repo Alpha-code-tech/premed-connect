@@ -155,13 +155,13 @@ export default function StudentIssues() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-3 sm:p-6 max-w-4xl mx-auto space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Issues</h1>
-          <p className="text-brand-grey mt-1">Submit and track your issues</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Issues</h1>
+          <p className="text-brand-grey mt-1 text-sm">Submit and track your issues</p>
         </div>
-        <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={() => setOpen(true)}>
+        <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4 mr-1" /> Submit Issue
         </Button>
       </div>
@@ -272,9 +272,9 @@ export default function StudentIssues() {
                 />
                 {attachmentFile && <p className="text-xs text-brand-grey mt-1">{attachmentFile.name}</p>}
               </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-brand-primary hover:bg-brand-secondary" disabled={submitMutation.isPending || uploading}>
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+                <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button type="submit" className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" disabled={submitMutation.isPending || uploading}>
                   {submitMutation.isPending ? 'Submitting...' : 'Submit Issue'}
                 </Button>
               </DialogFooter>

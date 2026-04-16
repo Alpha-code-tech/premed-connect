@@ -36,10 +36,10 @@ export default function CourseRepStudents() {
   )
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">My Students</h1>
-        <p className="text-brand-grey mt-1">All students in your department ({students?.length || 0} total)</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">My Students</h1>
+        <p className="text-brand-grey mt-1 text-sm">All students in your department ({students?.length || 0} total)</p>
       </div>
 
       <div className="relative">

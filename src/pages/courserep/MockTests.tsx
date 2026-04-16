@@ -197,13 +197,13 @@ export default function CourseRepMockTests() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Mock Tests</h1>
-          <p className="text-brand-grey mt-1">Create and manage mock tests</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Mock Tests</h1>
+          <p className="text-brand-grey mt-1 text-sm">Create and manage mock tests</p>
         </div>
-        <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={() => setCreateOpen(true)}>
+        <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4 mr-1" /> Create Test
         </Button>
       </div>
@@ -218,7 +218,7 @@ export default function CourseRepMockTests() {
       ) : (
         <div className="space-y-3">
           {tests?.map(test => (
-            <div key={test.id} className="bg-white rounded-lg border border-brand-border p-4 flex items-center gap-4">
+            <div key={test.id} className="bg-white rounded-lg border border-brand-border p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h3 className="font-semibold text-brand-text">{test.title}</h3>
@@ -239,7 +239,7 @@ export default function CourseRepMockTests() {
                   </p>
                 )}
               </div>
-              <div className="flex gap-2 shrink-0 flex-wrap justify-end">
+              <div className="flex gap-2 shrink-0 flex-wrap justify-start sm:justify-end">
                 {test.status === 'draft' && (
                   <Button size="sm" className="bg-brand-primary hover:bg-brand-secondary h-8 text-xs"
                     onClick={() => publishMutation.mutate(test.id)} disabled={publishMutation.isPending}>
@@ -273,11 +273,11 @@ export default function CourseRepMockTests() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Create Mock Test</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><label className="text-sm font-medium">Title *</label><Input className="mt-1" placeholder="Test title" value={title} onChange={e => setTitle(e.target.value)} /></div>
               <div><label className="text-sm font-medium">Subject *</label><Input className="mt-1" placeholder="e.g. Anatomy" value={subject} onChange={e => setSubject(e.target.value)} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><label className="text-sm font-medium">Time Limit (minutes, 1–180)</label>
                 <Input className="mt-1" type="number" min="1" max="180" value={timeLimit} onChange={e => setTimeLimit(e.target.value)} /></div>
               <div>
@@ -329,10 +329,10 @@ export default function CourseRepMockTests() {
               ))}
             </div>
           </div>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button variant="outline" disabled={saving} onClick={() => handleSave(false)}>Save as Draft</Button>
-            <Button className="bg-brand-primary hover:bg-brand-secondary" disabled={saving} onClick={() => handleSave(true)}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button variant="outline" className="w-full sm:w-auto" disabled={saving} onClick={() => handleSave(false)}>Save as Draft</Button>
+            <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" disabled={saving} onClick={() => handleSave(true)}>
               {saving ? 'Saving...' : 'Save & Publish'}
             </Button>
           </DialogFooter>

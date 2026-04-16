@@ -113,10 +113,10 @@ export default function CourseRepIssues() {
   const statusVariant = (s: string) => s === 'resolved' ? 'success' : s === 'in_progress' ? 'warning' : 'danger'
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Issues</h1>
-        <p className="text-brand-grey mt-1">Manage student issues and requests</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Issues</h1>
+        <p className="text-brand-grey mt-1 text-sm">Manage student issues and requests</p>
       </div>
 
       {isLoading ? (

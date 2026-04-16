@@ -78,13 +78,13 @@ export default function CourseRepNotifications() {
   })
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-3 sm:p-6 max-w-4xl mx-auto space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Notifications</h1>
-          <p className="text-brand-grey mt-1">Send notifications to your department students</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Notifications</h1>
+          <p className="text-brand-grey mt-1 text-sm">Send notifications to your department students</p>
         </div>
-        <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={() => setOpen(true)}>
+        <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4 mr-1" /> Send Notification
         </Button>
       </div>
@@ -144,9 +144,9 @@ export default function CourseRepNotifications() {
               <FormField control={form.control} name="scheduled_for" render={({ field }) => (
                 <FormItem><FormLabel>Schedule (optional)</FormLabel><FormControl><Input type="datetime-local" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-brand-primary hover:bg-brand-secondary" disabled={sendMutation.isPending}>
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+                <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button type="submit" className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" disabled={sendMutation.isPending}>
                   {sendMutation.isPending ? 'Sending...' : 'Send'}
                 </Button>
               </DialogFooter>

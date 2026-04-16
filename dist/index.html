@@ -2,16 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0D5C2E" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PreMed" />
+    <meta name="description" content="The official digital hub for pre-medical students." />
     <title>PreMed Connect</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
     <script src="https://js.paystack.co/v1/inline.js"></script>
-    <script type="module" crossorigin src="/assets/index-4SqM66DV.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-B7CpLetN.css">
-  </head>
+  <!-- Capture beforeinstallprompt before React mounts — the event fires very
+       early and is gone by the time useEffect listeners attach. We stash it on
+       window so usePWAInstall can pick it up regardless of timing. -->
+  <script>
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      window.__pwaInstallPrompt = e;
+    });
+  </script>
+    <script type="module" crossorigin src="/assets/index-B1PDomvI.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/query-CqwjgEoW.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-CtP_nXcu.js">
+    <link rel="modulepreload" crossorigin href="/assets/supabase-B5whowKr.js">
+    <link rel="modulepreload" crossorigin href="/assets/charts-DkWU6S8s.js">
+    <link rel="modulepreload" crossorigin href="/assets/motion-Cgs5I7WH.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-qpoKh4tM.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
   <body>
     <div id="root"></div>
   </body>

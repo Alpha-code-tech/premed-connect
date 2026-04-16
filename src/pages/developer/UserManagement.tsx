@@ -223,14 +223,14 @@ export default function DeveloperUserManagement() {
   const needsDepartment = true
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+    <div className="p-3 sm:p-6 max-w-7xl mx-auto space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">User Management</h1>
-          <p className="text-brand-grey mt-1">Manage all platform users and their roles</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">User Management</h1>
+          <p className="text-brand-grey mt-1 text-sm">Manage all platform users and their roles</p>
         </div>
         <Button
-          className="bg-brand-primary hover:bg-brand-secondary"
+          className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary"
           onClick={() => setCreateOpen(true)}
         >
           <UserPlus className="h-4 w-4 mr-1" /> Create Account
@@ -248,7 +248,7 @@ export default function DeveloperUserManagement() {
           />
         </div>
         <Select value={roleFilter} onValueChange={(v) => { setRoleFilter(v); setPage(0) }}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
@@ -365,10 +365,11 @@ export default function DeveloperUserManagement() {
               Are you sure you want to delete <strong>{deleteTarget?.full_name}</strong>? This cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setDeleteTarget(null)}>Cancel</Button>
             <Button
               variant="destructive"
+              className="w-full sm:w-auto"
               disabled={deleteMutation.isPending}
               onClick={() => { if (deleteTarget) deleteMutation.mutate(deleteTarget.id) }}
             >
@@ -449,10 +450,10 @@ export default function DeveloperUserManagement() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={handleCreateClose}>Cancel</Button>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={handleCreateClose}>Cancel</Button>
             <Button
-              className="bg-brand-primary hover:bg-brand-secondary"
+              className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary"
               disabled={
                 createUserMutation.isPending ||
                 !newUser.full_name.trim() ||
@@ -512,8 +513,8 @@ export default function DeveloperUserManagement() {
               This password will not be shown again. The user will be prompted to change it on first login.
             </div>
           </div>
-          <DialogFooter>
-            <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={handlePasswordDialogClose}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={handlePasswordDialogClose}>
               Done
             </Button>
           </DialogFooter>

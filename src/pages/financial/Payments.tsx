@@ -154,15 +154,15 @@ export default function FinancialPayments() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-7xl mx-auto space-y-4 sm:space-y-6">
       {/* Bills Management */}
-      <div className="bg-white rounded-lg border border-brand-border p-5">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white rounded-lg border border-brand-border p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-brand-text">Payment Bills</h2>
             <p className="text-sm text-brand-grey mt-0.5">Manage bills for the entire PreMed group</p>
           </div>
-          <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={() => setCreateOpen(true)}>
+          <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-1" /> Create Bill
           </Button>
         </div>
@@ -216,17 +216,17 @@ export default function FinancialPayments() {
       </div>
 
       {/* Payment Records */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Payment Records</h1>
-          <p className="text-brand-grey mt-1">Complete payment history</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Payment Records</h1>
+          <p className="text-brand-grey mt-1 text-sm">Complete payment history</p>
         </div>
-        <Button variant="outline" onClick={exportCSV} className="gap-2">
+        <Button variant="outline" onClick={exportCSV} className="w-full sm:w-auto gap-2">
           <Download className="h-4 w-4" /> Export CSV
         </Button>
       </div>
 
-      <div className="grid sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white rounded-lg border border-brand-border p-4">
           <p className="text-xs text-brand-grey">Filtered Revenue</p>
           <p className="text-xl font-bold text-green-700 mt-1">{formatCurrency(totalRevenue)}</p>
@@ -258,14 +258,14 @@ export default function FinancialPayments() {
           />
         </div>
         <Select value={deptFilter} onValueChange={v => { setDeptFilter(v); setPage(0) }}>
-          <SelectTrigger className="w-48"><SelectValue placeholder="Department" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Department" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Departments</SelectItem>
             {(departments || []).map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(0) }}>
-          <SelectTrigger className="w-36"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-36"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="successful">Paid</SelectItem>
@@ -385,9 +385,9 @@ export default function FinancialPayments() {
               </div>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={handleCreateBill} disabled={saving}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={handleCreateBill} disabled={saving}>
               {saving ? 'Creating...' : 'Create Bill'}
             </Button>
           </DialogFooter>

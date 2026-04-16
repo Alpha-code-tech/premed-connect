@@ -158,13 +158,13 @@ export default function CourseRepResources() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Resources</h1>
-          <p className="text-brand-grey mt-1">Upload and manage department resources</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Resources</h1>
+          <p className="text-brand-grey mt-1 text-sm">Upload and manage department resources</p>
         </div>
-        <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={() => setUploadOpen(true)}>
+        <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={() => setUploadOpen(true)}>
           <Upload className="h-4 w-4 mr-1" /> Add Resource
         </Button>
       </div>
@@ -289,10 +289,10 @@ export default function CourseRepResources() {
               </div>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setUploadOpen(false); resetDialog() }}>Cancel</Button>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => { setUploadOpen(false); resetDialog() }}>Cancel</Button>
             <Button
-              className="bg-brand-primary hover:bg-brand-secondary"
+              className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary"
               onClick={handleSubmit}
               disabled={uploading || !form.title.trim() || !form.subject.trim() || (mode === 'file' && !selectedFile) || (mode === 'link' && !form.linkUrl.trim())}
             >

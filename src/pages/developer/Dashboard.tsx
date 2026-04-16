@@ -34,13 +34,13 @@ export default function DeveloperDashboard() {
   })
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-5xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Developer Portal</h1>
-        <p className="text-brand-grey mt-1">Manage access, users, and platform configuration</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Developer Portal</h1>
+        <p className="text-brand-grey mt-1 text-sm">Manage access, users, and platform configuration</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         {isLoading ? (
           [...Array(3)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)
         ) : (
@@ -59,7 +59,7 @@ export default function DeveloperDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-brand-text">{stats?.pendingRequests}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-brand-text">{stats?.pendingRequests}</p>
                   <p className="text-xs text-brand-grey mt-1">Awaiting review</p>
                 </CardContent>
               </Card>
@@ -74,7 +74,7 @@ export default function DeveloperDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-brand-text">{stats?.totalUsers}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-brand-text">{stats?.totalUsers}</p>
                   <p className="text-xs text-brand-grey mt-1">Active accounts</p>
                 </CardContent>
               </Card>
@@ -89,7 +89,7 @@ export default function DeveloperDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-brand-text">{stats?.totalResources}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-brand-text">{stats?.totalResources}</p>
                   <p className="text-xs text-brand-grey mt-1">Uploaded files</p>
                 </CardContent>
               </Card>
@@ -98,7 +98,7 @@ export default function DeveloperDashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Link
           to="/developer/access-requests"
           className="block p-4 rounded-lg border border-brand-border bg-white hover:bg-brand-pale transition-colors text-sm font-medium text-brand-primary"

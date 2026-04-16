@@ -156,15 +156,15 @@ export default function GovernorPayments() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Bills Management */}
-      <div className="bg-white rounded-lg border border-brand-border p-5">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white rounded-lg border border-brand-border p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-brand-text">Payment Bills</h2>
             <p className="text-sm text-brand-grey mt-0.5">Manage bills for the entire PreMed group</p>
           </div>
-          <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={() => setCreateOpen(true)}>
+          <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-1" /> Create Bill
           </Button>
         </div>
@@ -218,28 +218,28 @@ export default function GovernorPayments() {
       </div>
 
       {/* Payment Records */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Payments</h1>
-          <p className="text-brand-grey mt-1">All payment records across departments</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Payments</h1>
+          <p className="text-brand-grey mt-1 text-sm">All payment records across departments</p>
         </div>
-        <Button variant="outline" onClick={exportCSV} className="gap-2">
+        <Button variant="outline" onClick={exportCSV} className="w-full sm:w-auto gap-2">
           <Download className="h-4 w-4" /> Export CSV
         </Button>
       </div>
 
-      <div className="grid sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         <div className="bg-white rounded-lg border border-brand-border p-4">
           <p className="text-sm text-brand-grey">Total Paid (filtered)</p>
-          <p className="text-2xl font-bold text-brand-primary mt-1">{formatCurrency(totalPaid)}</p>
+          <p className="text-xl sm:text-2xl font-bold text-brand-primary mt-1">{formatCurrency(totalPaid)}</p>
         </div>
         <div className="bg-white rounded-lg border border-brand-border p-4">
           <p className="text-sm text-brand-grey">Total Records</p>
-          <p className="text-2xl font-bold text-brand-text mt-1">{filtered?.length ?? 0}</p>
+          <p className="text-xl sm:text-2xl font-bold text-brand-text mt-1">{filtered?.length ?? 0}</p>
         </div>
-        <div className="bg-white rounded-lg border border-brand-border p-4">
+        <div className="bg-white rounded-lg border border-brand-border p-4 col-span-2 sm:col-span-1">
           <p className="text-sm text-brand-grey">Paid Records</p>
-          <p className="text-2xl font-bold text-green-600 mt-1">{filtered?.filter(p => p.status === 'successful').length ?? 0}</p>
+          <p className="text-xl sm:text-2xl font-bold text-green-600 mt-1">{filtered?.filter(p => p.status === 'successful').length ?? 0}</p>
         </div>
       </div>
 
@@ -249,14 +249,14 @@ export default function GovernorPayments() {
           <Input placeholder="Search by name or student ID..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <Select value={deptFilter} onValueChange={setDeptFilter}>
-          <SelectTrigger className="w-48"><SelectValue placeholder="Department" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Department" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Departments</SelectItem>
             {(departments || []).map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-36"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-36"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="successful">Paid</SelectItem>
@@ -362,9 +362,9 @@ export default function GovernorPayments() {
               </div>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={handleCreateBill} disabled={saving}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={handleCreateBill} disabled={saving}>
               {saving ? 'Creating...' : 'Create Bill'}
             </Button>
           </DialogFooter>

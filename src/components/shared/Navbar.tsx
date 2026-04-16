@@ -121,7 +121,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-1rem)]">
               <DropdownMenuLabel className="flex items-center justify-between">
                 <span>Notifications</span>
                 {unreadCount > 0 && <span className="text-xs font-normal text-brand-grey">{unreadCount} unread</span>}

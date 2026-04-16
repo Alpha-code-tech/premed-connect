@@ -71,13 +71,13 @@ export default function CourseRepAnnouncements() {
   })
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-3 sm:p-6 max-w-4xl mx-auto space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Announcements</h1>
-          <p className="text-brand-grey mt-1">Send announcements to your department students</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Announcements</h1>
+          <p className="text-brand-grey mt-1 text-sm">Send announcements to your department students</p>
         </div>
-        <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={() => setOpen(true)}>
+        <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4 mr-1" /> New Announcement
         </Button>
       </div>
@@ -136,9 +136,9 @@ export default function CourseRepAnnouncements() {
               <FormField control={form.control} name="body" render={({ field }) => (
                 <FormItem><FormLabel>Message</FormLabel><FormControl><Textarea placeholder="Write your announcement..." className="h-32 resize-none" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-brand-primary hover:bg-brand-secondary" disabled={createMutation.isPending}>
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+                <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button type="submit" className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" disabled={createMutation.isPending}>
                   {createMutation.isPending ? 'Sending...' : 'Send Announcement'}
                 </Button>
               </DialogFooter>

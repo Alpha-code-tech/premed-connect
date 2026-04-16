@@ -39,13 +39,13 @@ export default function CourseRepDashboard() {
   })
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Course Rep Dashboard</h1>
-        <p className="text-brand-grey mt-1">Overview of your department</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Course Rep Dashboard</h1>
+        <p className="text-brand-grey mt-1 text-sm">Overview of your department</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {isLoading ? [...Array(3)].map((_, i) => <Skeleton key={i} className="h-28" />) : (
           <>
             <Link to={`${basePath}/students`}>
@@ -74,7 +74,7 @@ export default function CourseRepDashboard() {
                 </CardContent>
               </Card>
             </Link>
-            <Link to={`${basePath}/announcements`}>
+            <Link to={`${basePath}/announcements`} className="col-span-2 lg:col-span-1">
               <Card className="hover:border-brand-accent cursor-pointer transition-colors">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -91,7 +91,7 @@ export default function CourseRepDashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Recent Issues</CardTitle>

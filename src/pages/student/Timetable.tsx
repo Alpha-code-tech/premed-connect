@@ -221,17 +221,18 @@ export default function StudentTimetable() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto">
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Study Timetable</h1>
-          <p className="text-brand-grey mt-1">Manage your weekly study schedule</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Study Timetable</h1>
+          <p className="text-brand-grey mt-1 text-sm">Manage your weekly study schedule</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
+            className="flex-1 sm:flex-none"
             onClick={() => setView((v) => (v === 'grid' ? 'list' : 'grid'))}
           >
             {view === 'grid' ? (
@@ -243,7 +244,7 @@ export default function StudentTimetable() {
           </Button>
           <Button
             size="sm"
-            className="bg-brand-primary hover:bg-brand-secondary"
+            className="flex-1 sm:flex-none bg-brand-primary hover:bg-brand-secondary"
             onClick={openCreate}
           >
             <Plus className="h-4 w-4 mr-1" /> Add Session
@@ -276,12 +277,12 @@ export default function StudentTimetable() {
                   {/* Entries */}
                   <div className="divide-y divide-brand-border">
                     {byDay[i].map((entry) => (
-                      <div key={entry.id} className="flex items-center gap-3 p-3">
+                      <div key={entry.id} className="flex items-center gap-2 p-3 min-h-[44px]">
                         {/* Status badge – click to cycle */}
                         <button
                           onClick={() => cycleStatus(entry)}
                           title="Click to change status"
-                          className={`px-2 py-0.5 rounded-full text-xs border font-medium transition-colors shrink-0 ${STATUS_COLORS[entry.status]}`}
+                          className={`px-2 py-1 rounded-full text-xs border font-medium transition-colors shrink-0 min-h-[32px] ${STATUS_COLORS[entry.status]}`}
                         >
                           {STATUS_LABELS[entry.status]}
                         </button>
@@ -292,10 +293,14 @@ export default function StudentTimetable() {
                             {entry.subject}
                           </p>
                           <p className="text-xs text-brand-grey truncate">{entry.topic}</p>
+                          <div className="flex items-center gap-1 text-xs text-brand-grey mt-0.5 sm:hidden">
+                            <Clock className="h-3 w-3 shrink-0" />
+                            {entry.start_time} – {entry.end_time}
+                          </div>
                         </div>
 
-                        {/* Time range */}
-                        <div className="flex items-center gap-1 text-xs text-brand-grey shrink-0">
+                        {/* Time range (desktop only) */}
+                        <div className="hidden sm:flex items-center gap-1 text-xs text-brand-grey shrink-0">
                           <Clock className="h-3 w-3" />
                           {entry.start_time} – {entry.end_time}
                         </div>
@@ -314,21 +319,21 @@ export default function StudentTimetable() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 shrink-0"
+                          className="h-9 w-9 shrink-0"
                           onClick={() => openEdit(entry)}
                         >
-                          <Edit2 className="h-3.5 w-3.5" />
+                          <Edit2 className="h-4 w-4" />
                         </Button>
 
                         {/* Delete */}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 shrink-0 text-red-500 hover:text-red-600"
+                          className="h-9 w-9 shrink-0 text-red-500 hover:text-red-600"
                           onClick={() => deleteMutation.mutate(entry.id)}
                           disabled={deleteMutation.isPending}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
@@ -406,7 +411,7 @@ export default function StudentTimetable() {
 
       {/* Subject progress */}
       {subjectProgress.length > 0 && (
-        <div className="bg-white rounded-lg border border-brand-border p-4">
+        <div className="bg-white rounded-lg border border-brand-border p-3 sm:p-4">
           <h3 className="font-semibold text-brand-text mb-3">Subject Progress</h3>
           <div className="space-y-3">
             {subjectProgress.map(({ subject, total, done, pct }) => (
@@ -446,7 +451,7 @@ export default function StudentTimetable() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Subject + Day row */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField
                   control={form.control}
                   name="subject"
@@ -506,7 +511,7 @@ export default function StudentTimetable() {
               />
 
               {/* Start / End time row */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="start_time"

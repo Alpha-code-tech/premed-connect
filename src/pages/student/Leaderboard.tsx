@@ -278,21 +278,21 @@ export default function LeaderboardPage() {
   const weekLabel = weekRangeLabel(displayWeekStart)
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-3xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-amber-500" />
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text flex items-center gap-2">
+            <Trophy className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
             Weekly Leaderboard
           </h1>
-          <p className="text-brand-grey mt-1">
+          <p className="text-brand-grey mt-1 text-sm">
             Ranked by score, then speed. Resets every Monday.
           </p>
         </div>
 
         <Select value={selectedWeek} onValueChange={v => { setSelectedWeek(v) }}>
-          <SelectTrigger className="w-52">
+          <SelectTrigger className="w-full sm:w-52">
             <ChevronDown className="h-4 w-4 mr-1 text-brand-grey" />
             <SelectValue placeholder="Select week" />
           </SelectTrigger>

@@ -289,10 +289,10 @@ export default function StudentExams() {
 
   if (!activeTest) {
     return (
-      <div className="p-6 max-w-5xl mx-auto space-y-6">
+      <div className="p-3 sm:p-6 max-w-5xl mx-auto space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Mock Exams</h1>
-          <p className="text-brand-grey mt-1">Take practice tests to prepare for your exams</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Mock Exams</h1>
+          <p className="text-brand-grey mt-1 text-sm">Take practice tests to prepare for your exams</p>
         </div>
 
         {isLoading ? (
@@ -385,7 +385,7 @@ export default function StudentExams() {
     const pass = result.percentage >= 50
 
     return (
-      <div className="p-6 max-w-3xl mx-auto space-y-6">
+      <div className="p-3 sm:p-6 max-w-3xl mx-auto space-y-4 sm:space-y-6">
         {/* Score card */}
         <div
           className={`rounded-xl p-6 text-center ${
@@ -497,8 +497,37 @@ export default function StudentExams() {
         </Button>
       </div>
 
+      {/* Mobile question navigator — horizontal scroll strip at top */}
+      <div className="sm:hidden bg-white border-b border-brand-border px-3 py-2">
+        <div className="flex items-center gap-2 mb-1.5">
+          <p className="text-xs font-medium text-brand-grey shrink-0">
+            {answeredCount}/{questions.length} answered
+          </p>
+        </div>
+        <div className="overflow-x-auto">
+          <div className="flex gap-1 pb-1" style={{ width: 'max-content' }}>
+            {questions.map((qs, i) => (
+              <button
+                key={qs.id}
+                onClick={() => setCurrentQ(i)}
+                title={`Question ${i + 1}${answers[qs.id] ? ' (answered)' : ''}`}
+                className={`w-8 h-8 rounded text-xs font-medium transition-colors shrink-0 ${
+                  currentQ === i ? 'ring-2 ring-brand-primary ring-offset-1' : ''
+                } ${
+                  answers[qs.id]
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-gray-100 text-brand-grey'
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-1 overflow-hidden">
-        {/* Question navigator sidebar */}
+        {/* Question navigator sidebar (desktop) */}
         <aside className="hidden sm:flex flex-col w-48 border-r border-brand-border p-3 bg-white overflow-y-auto shrink-0">
           <p className="text-xs font-medium text-brand-grey mb-2">
             {answeredCount}/{questions.length} answered
@@ -524,15 +553,15 @@ export default function StudentExams() {
         </aside>
 
         {/* Question area */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto">
           <div className="max-w-2xl mx-auto">
             <p className="text-xs text-brand-grey mb-1">
               Question {currentQ + 1} of {questions.length}
             </p>
-            <p className="text-lg font-medium text-brand-text mb-6">{q.question_text}</p>
+            <p className="text-base sm:text-lg font-medium text-brand-text mb-5 leading-relaxed">{q.question_text}</p>
 
-            {/* Options */}
-            <div className="space-y-3">
+            {/* Options — minimum 48px touch height */}
+            <div className="space-y-2 sm:space-y-3">
               {OPTIONS.map((opt) => {
                 const text = optionText(q, opt)
                 const isSelected = answers[q.id] === opt
@@ -542,7 +571,7 @@ export default function StudentExams() {
                     onClick={() =>
                       setAnswers((prev) => ({ ...prev, [q.id]: opt }))
                     }
-                    className={`w-full flex items-center gap-3 p-4 rounded-lg border text-left transition-colors ${
+                    className={`w-full flex items-center gap-3 p-3 sm:p-4 rounded-lg border text-left transition-colors min-h-[48px] ${
                       isSelected
                         ? 'border-brand-primary bg-brand-pale text-brand-text'
                         : 'border-brand-border bg-white text-brand-grey hover:border-brand-secondary hover:bg-brand-background'
@@ -564,7 +593,7 @@ export default function StudentExams() {
             </div>
 
             {/* Navigation */}
-            <div className="flex justify-between mt-6">
+            <div className="flex justify-between mt-5 sm:mt-6">
               <Button
                 variant="outline"
                 onClick={() => setCurrentQ((q) => Math.max(0, q - 1))}
@@ -588,30 +617,6 @@ export default function StudentExams() {
                   Submit Exam
                 </Button>
               )}
-            </div>
-
-            {/* Mobile question navigator */}
-            <div className="sm:hidden mt-6 pt-4 border-t border-brand-border">
-              <p className="text-xs font-medium text-brand-grey mb-2">
-                {answeredCount}/{questions.length} answered
-              </p>
-              <div className="flex flex-wrap gap-1">
-                {questions.map((qs, i) => (
-                  <button
-                    key={qs.id}
-                    onClick={() => setCurrentQ(i)}
-                    className={`w-7 h-7 rounded text-xs font-medium transition-colors ${
-                      currentQ === i ? 'ring-2 ring-brand-primary ring-offset-1' : ''
-                    } ${
-                      answers[qs.id]
-                        ? 'bg-brand-primary text-white'
-                        : 'bg-gray-100 text-brand-grey'
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         </main>

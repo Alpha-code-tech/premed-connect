@@ -280,7 +280,7 @@ function AddCourseForm({ studentId, onDone }: { studentId: string; onDone: () =>
   return (
     <div className="bg-white rounded-xl border border-brand-border p-4 space-y-3">
       <h4 className="text-sm font-semibold text-brand-text">Add New Course</h4>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="text-xs text-brand-grey mb-1 block">Course Code</label>
           <Input
@@ -404,17 +404,17 @@ export default function TopicTracker({ summaryOnly = false }: TopicTrackerProps)
               {overallPct}%
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-4 flex-1 min-w-0">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 flex-1 min-w-0">
             <div>
-              <p className="text-2xl font-bold text-brand-text">{totalTopics}</p>
+              <p className="text-lg sm:text-2xl font-bold text-brand-text">{totalTopics}</p>
               <p className="text-xs text-brand-grey">Total topics</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-brand-primary">{completedTopics}</p>
+              <p className="text-lg sm:text-2xl font-bold text-brand-primary">{completedTopics}</p>
               <p className="text-xs text-brand-grey">Completed</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-amber-600">{remainingTopics}</p>
+              <p className="text-lg sm:text-2xl font-bold text-amber-600">{remainingTopics}</p>
               <p className="text-xs text-brand-grey">Remaining</p>
             </div>
           </div>

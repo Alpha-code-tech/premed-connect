@@ -106,10 +106,10 @@ export default function GovernorNotifications() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-4xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Notifications</h1>
-        <p className="text-brand-grey mt-1">Broadcast to all members</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Notifications</h1>
+        <p className="text-brand-grey mt-1 text-sm">Broadcast to all members</p>
       </div>
 
       <div className="bg-white rounded-lg border border-brand-border p-5">
@@ -159,7 +159,7 @@ export default function GovernorNotifications() {
             <div className="flex justify-end">
               <Button
                 type="submit"
-                className={`${sent ? 'bg-green-600 hover:bg-green-700' : 'bg-brand-primary hover:bg-brand-secondary'}`}
+                className={`w-full sm:w-auto ${sent ? 'bg-green-600 hover:bg-green-700' : 'bg-brand-primary hover:bg-brand-secondary'}`}
                 disabled={sendMutation.isPending}
               >
                 {sendMutation.isPending ? 'Sending...' : sent ? 'Sent!' : 'Send to All Members'}

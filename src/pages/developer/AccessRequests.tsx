@@ -259,13 +259,13 @@ export default function DeveloperAccessRequests() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+    <div className="p-3 sm:p-6 max-w-7xl mx-auto space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Access Requests</h1>
-          <p className="text-brand-grey mt-1">Review and approve student access requests</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Access Requests</h1>
+          <p className="text-brand-grey mt-1 text-sm">Review and approve student access requests</p>
         </div>
-        <Button variant="outline" onClick={exportCSV}>
+        <Button variant="outline" className="w-full sm:w-auto" onClick={exportCSV}>
           <Download className="h-4 w-4 mr-1" /> Export CSV
         </Button>
       </div>
@@ -433,9 +433,9 @@ export default function DeveloperAccessRequests() {
               it on first login.
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
             <Button
-              className="bg-brand-primary hover:bg-brand-secondary"
+              className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary"
               onClick={handlePasswordDialogClose}
             >
               Done
@@ -459,12 +459,13 @@ export default function DeveloperAccessRequests() {
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
           />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectTarget(null)}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setRejectTarget(null)}>
               Cancel
             </Button>
             <Button
               variant="destructive"
+              className="w-full sm:w-auto"
               disabled={rejectMutation.isPending}
               onClick={() => {
                 if (rejectTarget) {
