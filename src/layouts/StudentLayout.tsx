@@ -28,7 +28,7 @@ export default function StudentLayout() {
   const isNonStudent = profile?.role !== 'student'
 
   return (
-    <div className="min-h-screen bg-brand-background flex flex-col">
+    <div className="min-h-screen bg-brand-background flex flex-col overflow-x-hidden">
       <Navbar onMenuClick={() => setMobileOpen(true)} />
       {isNonStudent && isStudentMode && (
         <div className="bg-amber-50 border-b border-amber-200 px-4 py-1.5 flex items-center gap-2 text-xs text-amber-800">
@@ -36,7 +36,7 @@ export default function StudentLayout() {
           <span>Student View — viewing as student. Your {ROLE_LABELS[profile!.role]} permissions remain active in the background.</span>
         </div>
       )}
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-w-0 overflow-x-hidden">
         <Sidebar items={navItems} />
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetContent side="left" className="p-0 w-72">
@@ -49,7 +49,7 @@ export default function StudentLayout() {
             <MobileSidebar items={navItems} onClose={() => setMobileOpen(false)} />
           </SheetContent>
         </Sheet>
-        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+        <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
           <Outlet />
         </main>
       </div>

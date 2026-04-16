@@ -23,9 +23,9 @@ export default function CourseRepLayout() {
   ]
 
   return (
-    <div className="min-h-screen bg-brand-background flex flex-col">
+    <div className="min-h-screen bg-brand-background flex flex-col overflow-x-hidden">
       <Navbar onMenuClick={() => setMobileOpen(true)} />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-w-0 overflow-x-hidden">
         <Sidebar items={navItems} />
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetContent side="left" className="p-0 w-72">
@@ -38,7 +38,7 @@ export default function CourseRepLayout() {
             <MobileSidebar items={navItems} onClose={() => setMobileOpen(false)} />
           </SheetContent>
         </Sheet>
-        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+        <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
           <Outlet />
         </main>
       </div>
