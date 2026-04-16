@@ -1,10 +1,69 @@
 import { useQuery } from '@tanstack/react-query'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 import { supabase } from '@/lib/supabase'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency } from '@/lib/utils'
 
-const COLORS = ['#0D5C2E', '#1A8A4A', '#4DBD74', '#7DD4A0', '#B2DBC2', '#2E7D52', '#166534', '#14532D', '#86EFAC', '#4ADE80']
+// ── CSS conic-gradient pie chart — zero Recharts, works perfectly on mobile ──
+
+interface PieSlice {
+  name: string
+  value: number
+  color: string
+}
+
+function CssPieChart({ slices, emptyMessage }: { slices: PieSlice[]; emptyMessage: string }) {
+  const total = slices.reduce((s, d) => s + d.value, 0)
+
+  if (total === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <div className="w-10 h-10 rounded-full bg-brand-pale flex items-center justify-center mb-2">
+          <span className="text-brand-grey text-lg">—</span>
+        </div>
+        <p className="text-sm text-brand-grey">{emptyMessage}</p>
+      </div>
+    )
+  }
+
+  let cumulative = 0
+  const stops = slices
+    .filter(s => s.value > 0)
+    .map(s => {
+      const pct = (s.value / total) * 100
+      const start = cumulative
+      cumulative += pct
+      return `${s.color} ${start.toFixed(2)}% ${cumulative.toFixed(2)}%`
+    })
+
+  return (
+    <div>
+      <div
+        className="mx-auto"
+        style={{
+          width: 160,
+          height: 160,
+          borderRadius: '50%',
+          background: `conic-gradient(${stops.join(', ')})`,
+        }}
+      />
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
+        {slices.map(s => {
+          const pct = Math.round((s.value / total) * 100)
+          return (
+            <div key={s.name} className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: s.color }} />
+              <span className="text-xs text-brand-grey capitalize">
+                {s.name}: <strong className="text-brand-text">{s.value}</strong>
+                {' '}({pct}%)
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export default function GovernorAnalytics() {
   const { data: analyticsData, isLoading } = useQuery({
@@ -83,13 +142,26 @@ export default function GovernorAnalytics() {
     )
   }
 
+  const paymentSlices: PieSlice[] = [
+    { name: 'successful', value: analyticsData?.paymentStatus.find(p => p.name === 'successful')?.value ?? 0, color: '#1A8A4A' },
+    { name: 'pending',    value: analyticsData?.paymentStatus.find(p => p.name === 'pending')?.value ?? 0,    color: '#F59E0B' },
+    { name: 'failed',     value: analyticsData?.paymentStatus.find(p => p.name === 'failed')?.value ?? 0,     color: '#EF4444' },
+  ]
+
+  const issueSlices: PieSlice[] = [
+    { name: 'open',        value: analyticsData?.issueStatus.find(p => p.name === 'open')?.value ?? 0,        color: '#F59E0B' },
+    { name: 'in progress', value: analyticsData?.issueStatus.find(p => p.name === 'in progress')?.value ?? 0, color: '#3B82F6' },
+    { name: 'resolved',    value: analyticsData?.issueStatus.find(p => p.name === 'resolved')?.value ?? 0,    color: '#1A8A4A' },
+  ]
+
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Analytics</h1>
         <p className="text-brand-grey mt-1 text-sm">PreMed Set performance overview</p>
       </div>
 
+      {/* Bar / line charts — 2-col at lg */}
       <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white rounded-lg border border-brand-border p-5">
           <h2 className="font-semibold text-brand-text mb-4">Members per Department</h2>
@@ -133,39 +205,17 @@ export default function GovernorAnalytics() {
             </ResponsiveContainer>
           )}
         </div>
+      </div>
 
+      {/* Pie charts — CSS conic-gradient, stacked on mobile, side-by-side at sm+ */}
+      <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white rounded-lg border border-brand-border p-5">
-          <h2 className="font-semibold text-brand-text mb-4">Payment & Issue Status</h2>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <p className="text-xs text-brand-grey text-center mb-2">Payments</p>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={analyticsData?.paymentStatus} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, value }) => value > 0 ? name : ''} labelLine={false}>
-                    {analyticsData?.paymentStatus.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex-1">
-              <p className="text-xs text-brand-grey text-center mb-2">Issues</p>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={analyticsData?.issueStatus} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, value }) => value > 0 ? name : ''} labelLine={false}>
-                    {analyticsData?.issueStatus.map((_, i) => (
-                      <Cell key={i} fill={COLORS[(i + 3) % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <h2 className="font-semibold text-brand-text mb-4">Payment Status</h2>
+          <CssPieChart slices={paymentSlices} emptyMessage="No payment data yet" />
+        </div>
+        <div className="bg-white rounded-lg border border-brand-border p-5">
+          <h2 className="font-semibold text-brand-text mb-4">Issue Status</h2>
+          <CssPieChart slices={issueSlices} emptyMessage="No issues reported yet" />
         </div>
       </div>
     </div>
