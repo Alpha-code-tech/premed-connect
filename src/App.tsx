@@ -46,6 +46,7 @@ import GovernorDepartments from '@/pages/governor/Departments'
 import GovernorPayments from '@/pages/governor/Payments'
 import GovernorAnnouncements from '@/pages/governor/Announcements'
 import GovernorAnalytics from '@/pages/governor/Analytics'
+import GovernorIssues from '@/pages/governor/Issues'
 import GovernorNotifications from '@/pages/governor/Notifications'
 
 // Developer pages
@@ -202,6 +203,7 @@ export default function App() {
         <Route path="payments" element={<GovernorPayments />} />
         <Route path="announcements" element={<GovernorAnnouncements />} />
         <Route path="analytics" element={<GovernorAnalytics />} />
+        <Route path="issues" element={<GovernorIssues />} />
         <Route path="notifications" element={<GovernorNotifications />} />
       </Route>
 

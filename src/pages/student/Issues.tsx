@@ -25,7 +25,6 @@ const RECIPIENTS = [
   { value: 'Course Rep', label: 'Course Rep (My Department)' },
   { value: 'Assistant Course Rep', label: 'Assistant Course Rep (My Department)' },
   { value: 'Governor', label: 'Governor' },
-  { value: 'Deputy Governor', label: 'Deputy Governor' },
   { value: 'Financial Secretary', label: 'Financial Secretary' },
 ] as const
 

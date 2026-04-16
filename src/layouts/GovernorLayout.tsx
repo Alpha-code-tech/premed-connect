@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import { Home, CreditCard, Megaphone, BarChart2, Bell, Building2 } from 'lucide-react'
+import { Home, CreditCard, Megaphone, BarChart2, Bell, Building2, AlertCircle } from 'lucide-react'
 import { Navbar } from '@/components/shared/Navbar'
 import { Sidebar, MobileSidebar } from '@/components/shared/Sidebar'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
@@ -10,6 +10,7 @@ const navItems = [
   { label: 'Departments', href: '/governor/departments', icon: Building2 },
   { label: 'Payments', href: '/governor/payments', icon: CreditCard },
   { label: 'Announcements', href: '/governor/announcements', icon: Megaphone },
+  { label: 'Issues', href: '/governor/issues', icon: AlertCircle },
   { label: 'Analytics', href: '/governor/analytics', icon: BarChart2 },
   { label: 'Notifications', href: '/governor/notifications', icon: Bell },
 ]

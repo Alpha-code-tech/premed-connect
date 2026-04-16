@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
+import { CheckCircle2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency } from '@/lib/utils'
@@ -12,14 +13,14 @@ interface PieSlice {
   color: string
 }
 
-function CssPieChart({ slices, emptyMessage }: { slices: PieSlice[]; emptyMessage: string }) {
+function CssPieChart({ slices, emptyMessage, emptyIcon }: { slices: PieSlice[]; emptyMessage: string; emptyIcon?: React.ReactNode }) {
   const total = slices.reduce((s, d) => s + d.value, 0)
 
   if (total === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
         <div className="w-10 h-10 rounded-full bg-brand-pale flex items-center justify-center mb-2">
-          <span className="text-brand-grey text-lg">—</span>
+          {emptyIcon ?? <span className="text-brand-grey text-lg">—</span>}
         </div>
         <p className="text-sm text-brand-grey">{emptyMessage}</p>
       </div>
@@ -73,7 +74,7 @@ export default function GovernorAnalytics() {
         supabase.from('profiles').select('department_id, created_at').not('department_id', 'is', null),
         supabase.from('payments').select('amount, status, created_at, profiles:student_id(department_id)'),
         supabase.from('resources').select('subject, created_at'),
-        supabase.from('issues').select('status, created_at'),
+        supabase.from('issues').select('status, description, created_at'),
         supabase.from('departments').select('id, name').order('name'),
       ])
 
@@ -105,9 +106,11 @@ export default function GovernorAnalytics() {
       })
       const paymentStatus = Object.entries(statusCounts).map(([name, value]) => ({ name, value }))
 
-      // Issues by status
+      // Issues by status — Governor-directed only
       const issueCounts = { open: 0, in_progress: 0, resolved: 0 }
       issuesRes.data?.forEach(i => {
+        const raw = i.description ?? ''
+        if (!raw.startsWith('To: Governor\n---\n')) return
         if (i.status in issueCounts) issueCounts[i.status as keyof typeof issueCounts]++
       })
       const issueStatus = Object.entries(issueCounts).map(([name, value]) => ({
@@ -149,9 +152,9 @@ export default function GovernorAnalytics() {
   ]
 
   const issueSlices: PieSlice[] = [
-    { name: 'open',        value: analyticsData?.issueStatus.find(p => p.name === 'open')?.value ?? 0,        color: '#F59E0B' },
-    { name: 'in progress', value: analyticsData?.issueStatus.find(p => p.name === 'in progress')?.value ?? 0, color: '#3B82F6' },
-    { name: 'resolved',    value: analyticsData?.issueStatus.find(p => p.name === 'resolved')?.value ?? 0,    color: '#1A8A4A' },
+    { name: 'open',        value: analyticsData?.issueStatus.find(p => p.name === 'open')?.value ?? 0,        color: '#E67E22' },
+    { name: 'in progress', value: analyticsData?.issueStatus.find(p => p.name === 'in progress')?.value ?? 0, color: '#3498DB' },
+    { name: 'resolved',    value: analyticsData?.issueStatus.find(p => p.name === 'resolved')?.value ?? 0,    color: '#2ECC71' },
   ]
 
   return (
@@ -215,7 +218,19 @@ export default function GovernorAnalytics() {
         </div>
         <div className="bg-white rounded-lg border border-brand-border p-5">
           <h2 className="font-semibold text-brand-text mb-4">Issue Status</h2>
-          <CssPieChart slices={issueSlices} emptyMessage="No issues reported yet" />
+          <CssPieChart
+            slices={issueSlices}
+            emptyMessage="No issues directed to the Governor yet"
+            emptyIcon={<CheckCircle2 className="h-5 w-5 text-brand-primary" />}
+          />
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            {issueSlices.map(s => (
+              <div key={s.name} className="text-center p-2 rounded-lg" style={{ backgroundColor: `${s.color}18` }}>
+                <p className="text-lg font-bold text-brand-text">{s.value}</p>
+                <p className="text-xs text-brand-grey capitalize">{s.name}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

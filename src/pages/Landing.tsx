@@ -270,7 +270,7 @@ function DepartmentsTicker() {
 const VISIONARIES = [
   // Leadership first
   { name: 'Raji Ahmed Ajani',           role: 'PreMed Governor',                    image: '/executives/Raji Ahmed Ajani PreMed Governor.jpg' },
-  { name: 'Victoria Eniolorunda',        role: 'PreMed Deputy Governor',             image: '/executives/Victoria Eniolorunda Premed Deputy Governor.jpg' },
+  { name: 'Victoria Eniolorunda',        role: 'PreMed Governor\'s Office',           image: '/executives/Victoria Eniolorunda Premed Deputy Governor.jpg' },
   // Course reps & ACRs alphabetically by last name
   { name: 'Abigail Ayomide',            role: 'Course Representative — Pharmacology', image: '/executives/Abigail Ayomide Pharmacology CR.jpg' },
   { name: 'Adeagbo David',              role: 'Course Representative — Nursing',     image: '/executives/Adeagbo David Nursing ACR.jpg' },
