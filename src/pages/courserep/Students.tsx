@@ -1,6 +1,3 @@
-// Table of all dept students with name, email, matric number, payment status
-// Search functionality
-
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Search, Users } from 'lucide-react'
@@ -30,7 +27,8 @@ export default function CourseRepStudents() {
   })
 
   const filtered = (students || []).filter(s =>
-    !search || s.full_name.toLowerCase().includes(search.toLowerCase()) ||
+    !search ||
+    s.full_name.toLowerCase().includes(search.toLowerCase()) ||
     s.email.toLowerCase().includes(search.toLowerCase()) ||
     (s.student_id || '').toLowerCase().includes(search.toLowerCase())
   )
@@ -55,32 +53,51 @@ export default function CourseRepStudents() {
           <p className="text-brand-grey">No students found</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-brand-border overflow-x-auto">
-          <table className="w-full text-sm min-w-[500px]">
-            <thead className="bg-brand-pale border-b border-brand-border">
-              <tr>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Name</th>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Email</th>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Matric No.</th>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-brand-border">
-              {filtered.map(student => (
-                <tr key={student.id} className="hover:bg-brand-pale/30 transition-colors">
-                  <td className="px-4 py-3 font-medium text-brand-text">{student.full_name}</td>
-                  <td className="px-4 py-3 text-brand-grey">{student.email}</td>
-                  <td className="px-4 py-3 text-brand-grey">{student.student_id || '—'}</td>
-                  <td className="px-4 py-3">
-                    <Badge variant={student.password_changed ? 'success' : 'warning'}>
-                      {student.password_changed ? 'Active' : 'Pending'}
-                    </Badge>
-                  </td>
+        <>
+          {/* ── Mobile cards ── */}
+          <div className="block md:hidden space-y-3">
+            {filtered.map(student => (
+              <div key={student.id} className="bg-white border border-brand-border rounded-lg p-4 space-y-1.5">
+                <div className="flex justify-between items-center gap-2">
+                  <p className="font-semibold text-sm text-brand-text">{student.full_name}</p>
+                  <Badge variant={student.password_changed ? 'success' : 'warning'} className="shrink-0">
+                    {student.password_changed ? 'Active' : 'Pending'}
+                  </Badge>
+                </div>
+                <p className="text-xs text-brand-grey truncate">{student.email}</p>
+                <p className="text-xs text-brand-grey">{student.student_id || '—'}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop table ── */}
+          <div className="hidden md:block bg-white rounded-lg border border-brand-border overflow-x-auto max-w-full">
+            <table className="w-full text-sm min-w-[500px]">
+              <thead className="bg-brand-pale border-b border-brand-border">
+                <tr>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Name</th>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Email</th>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Matric No.</th>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-brand-border">
+                {filtered.map(student => (
+                  <tr key={student.id} className="hover:bg-brand-pale/30 transition-colors">
+                    <td className="px-4 py-3 font-medium text-brand-text">{student.full_name}</td>
+                    <td className="px-4 py-3 text-brand-grey max-w-[200px] truncate">{student.email}</td>
+                    <td className="px-4 py-3 text-brand-grey">{student.student_id || '—'}</td>
+                    <td className="px-4 py-3">
+                      <Badge variant={student.password_changed ? 'success' : 'warning'}>
+                        {student.password_changed ? 'Active' : 'Pending'}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   )

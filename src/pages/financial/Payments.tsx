@@ -275,61 +275,88 @@ export default function FinancialPayments() {
         </Select>
       </div>
 
-      <div className="bg-white rounded-lg border border-brand-border overflow-x-auto">
-        {isLoading ? (
-          <div className="p-4 space-y-3">{[...Array(10)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
-        ) : paginated.length === 0 ? (
-          <div className="p-8 text-center text-brand-grey text-sm">No payment records found</div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-brand-border text-brand-grey text-xs bg-brand-pale/30">
-                <th className="text-left px-4 py-3 font-medium">Student</th>
-                <th className="text-left px-4 py-3 font-medium">Department</th>
-                <th className="text-left px-4 py-3 font-medium">Item</th>
-                <th className="text-left px-4 py-3 font-medium">Amount</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Reference</th>
-                <th className="text-left px-4 py-3 font-medium">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginated.map(p => {
-                const student = p.profiles as { full_name?: string; student_id?: string; department_id?: string } | null
-                const item = p.payment_items as { title?: string } | null
-                return (
-                  <tr key={p.id} className="border-b border-brand-border last:border-0 hover:bg-brand-pale/30">
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-brand-text">{student?.full_name}</p>
-                      <p className="text-xs text-brand-grey">{student?.student_id}</p>
-                    </td>
-                    <td className="px-4 py-3 text-brand-grey text-xs">{deptMap[student?.department_id ?? ''] || student?.department_id}</td>
-                    <td className="px-4 py-3 text-brand-text">{item?.title}</td>
-                    <td className="px-4 py-3 font-semibold text-brand-text">{formatCurrency(p.amount || 0)}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant={statusVariant(p.status)}>{p.status}</Badge>
-                    </td>
-                    <td className="px-4 py-3 text-brand-grey text-xs font-mono">{p.paystack_reference || '—'}</td>
-                    <td className="px-4 py-3 text-brand-grey text-xs">{formatDateShort(p.created_at)}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        )}
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-brand-border">
-            <p className="text-xs text-brand-grey">
-              Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Previous</Button>
-              <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Next</Button>
-            </div>
+      {isLoading ? (
+        <div className="space-y-2">{[...Array(10)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
+      ) : paginated.length === 0 ? (
+        <div className="p-8 text-center text-brand-grey text-sm bg-white rounded-lg border border-brand-border">No payment records found</div>
+      ) : (
+        <>
+          {/* ── Mobile cards ── */}
+          <div className="block md:hidden space-y-3">
+            {paginated.map(p => {
+              const student = p.profiles as { full_name?: string; student_id?: string; department_id?: string } | null
+              const item = p.payment_items as { title?: string } | null
+              return (
+                <div key={p.id} className="bg-white border border-brand-border rounded-lg p-4 space-y-1.5">
+                  <div className="flex justify-between items-start gap-2">
+                    <div>
+                      <p className="font-semibold text-sm text-brand-text">{student?.full_name}</p>
+                      {student?.student_id && <p className="text-xs text-brand-grey">{student.student_id}</p>}
+                    </div>
+                    <Badge variant={statusVariant(p.status)} className="shrink-0">{p.status}</Badge>
+                  </div>
+                  <p className="text-xs text-brand-grey">{deptMap[student?.department_id ?? ''] || student?.department_id || '—'}</p>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-brand-grey truncate mr-2">{item?.title}</span>
+                    <span className="font-semibold text-brand-text shrink-0">{formatCurrency(p.amount || 0)}</span>
+                  </div>
+                  {p.paystack_reference && <p className="text-xs font-mono text-brand-grey truncate">{p.paystack_reference}</p>}
+                  <p className="text-xs text-brand-grey">{formatDateShort(p.created_at)}</p>
+                </div>
+              )
+            })}
           </div>
-        )}
-      </div>
+
+          {/* ── Desktop table ── */}
+          <div className="hidden md:block bg-white rounded-lg border border-brand-border overflow-x-auto max-w-full">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-brand-border text-brand-grey text-xs bg-brand-pale/30">
+                  <th className="text-left px-4 py-3 font-medium">Student</th>
+                  <th className="text-left px-4 py-3 font-medium">Department</th>
+                  <th className="text-left px-4 py-3 font-medium">Item</th>
+                  <th className="text-left px-4 py-3 font-medium">Amount</th>
+                  <th className="text-left px-4 py-3 font-medium">Status</th>
+                  <th className="text-left px-4 py-3 font-medium">Reference</th>
+                  <th className="text-left px-4 py-3 font-medium">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginated.map(p => {
+                  const student = p.profiles as { full_name?: string; student_id?: string; department_id?: string } | null
+                  const item = p.payment_items as { title?: string } | null
+                  return (
+                    <tr key={p.id} className="border-b border-brand-border last:border-0 hover:bg-brand-pale/30">
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-brand-text">{student?.full_name}</p>
+                        <p className="text-xs text-brand-grey">{student?.student_id}</p>
+                      </td>
+                      <td className="px-4 py-3 text-brand-grey text-xs">{deptMap[student?.department_id ?? ''] || student?.department_id}</td>
+                      <td className="px-4 py-3 text-brand-text">{item?.title}</td>
+                      <td className="px-4 py-3 font-semibold text-brand-text">{formatCurrency(p.amount || 0)}</td>
+                      <td className="px-4 py-3"><Badge variant={statusVariant(p.status)}>{p.status}</Badge></td>
+                      <td className="px-4 py-3 text-brand-grey text-xs font-mono max-w-[120px] truncate">{p.paystack_reference || '—'}</td>
+                      <td className="px-4 py-3 text-brand-grey text-xs">{formatDateShort(p.created_at)}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-brand-border bg-white rounded-b-lg">
+              <p className="text-xs text-brand-grey">
+                Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
+              </p>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Previous</Button>
+                <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Next</Button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Create Bill Dialog */}
       <Dialog open={createOpen} onOpenChange={open => {

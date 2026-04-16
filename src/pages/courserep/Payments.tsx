@@ -124,15 +124,15 @@ export default function CourseRepPayments() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-3 sm:p-6 max-w-7xl mx-auto space-y-4 sm:space-y-6">
       {/* Bills Management */}
-      <div className="bg-white rounded-lg border border-brand-border p-5">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white rounded-lg border border-brand-border p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-brand-text">Department Bills</h2>
             <p className="text-sm text-brand-grey mt-0.5">Bills generated for your department only</p>
           </div>
-          <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={() => setCreateOpen(true)}>
+          <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-1" /> Create Bill
           </Button>
         </div>
@@ -178,51 +178,77 @@ export default function CourseRepPayments() {
         )}
       </div>
 
-      {/* Payment Matrix */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Payment Overview */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Payments Overview</h1>
-          <p className="text-brand-grey mt-1">Department payment status matrix</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-text">Payments Overview</h1>
+          <p className="text-brand-grey mt-1 text-sm">Department payment status</p>
         </div>
-        <Button variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> Export CSV</Button>
+        <Button variant="outline" className="w-full sm:w-auto" onClick={exportCSV}>
+          <Download className="h-4 w-4 mr-1" /> Export CSV
+        </Button>
       </div>
 
-      {matrixLoading ? <Skeleton className="h-64 w-full" /> : (
-        <div className="bg-white rounded-lg border border-brand-border overflow-auto">
-          <table className="w-full text-xs min-w-[600px]">
-            <thead className="bg-brand-pale border-b border-brand-border">
-              <tr>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium sticky left-0 bg-brand-pale z-10">Student</th>
-                {matrix?.items.map(item => (
-                  <th key={item.id} className="px-3 py-3 text-brand-grey font-medium text-center min-w-28">
-                    <div className="truncate max-w-24">{item.title}</div>
-                    <div className="font-normal text-brand-grey">{formatCurrency(item.amount)}</div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-brand-border">
-              {matrix?.students.map(student => (
-                <tr key={student.id} className="hover:bg-brand-pale/20">
-                  <td className="px-4 py-2 font-medium text-brand-text sticky left-0 bg-white">{student.full_name}</td>
+      {matrixLoading ? <Skeleton className="h-64 w-full" /> : matrix?.students.length === 0 ? (
+        <div className="text-center py-8 text-brand-grey bg-white rounded-lg border border-brand-border">No students in your department</div>
+      ) : (
+        <>
+          {/* ── Mobile: per-student cards ── */}
+          <div className="block md:hidden space-y-3">
+            {matrix?.students.map(student => (
+              <div key={student.id} className="bg-white border border-brand-border rounded-lg p-4 space-y-2">
+                <p className="font-semibold text-sm text-brand-text">{student.full_name}</p>
+                <div className="space-y-1.5">
                   {matrix.items.map(item => {
                     const status = matrix.paymentMap.get(`${student.id}-${item.id}`)
                     return (
-                      <td key={item.id} className="px-3 py-2 text-center">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs border font-medium ${statusColor(status)}`}>
+                      <div key={item.id} className="flex justify-between items-center text-xs">
+                        <span className="text-brand-grey truncate mr-2">{item.title} ({formatCurrency(item.amount)})</span>
+                        <span className={`px-2 py-0.5 rounded-full border font-medium shrink-0 ${statusColor(status)}`}>
                           {status === 'successful' ? 'Paid' : status === 'pending' ? 'Pending' : 'Unpaid'}
                         </span>
-                      </td>
+                      </div>
                     )
                   })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop: scrollable matrix ── */}
+          <div className="hidden md:block bg-white rounded-lg border border-brand-border overflow-auto max-w-full">
+            <table className="w-full text-xs min-w-[600px]">
+              <thead className="bg-brand-pale border-b border-brand-border">
+                <tr>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium sticky left-0 bg-brand-pale z-10">Student</th>
+                  {matrix?.items.map(item => (
+                    <th key={item.id} className="px-3 py-3 text-brand-grey font-medium text-center min-w-28">
+                      <div className="truncate max-w-24">{item.title}</div>
+                      <div className="font-normal text-brand-grey">{formatCurrency(item.amount)}</div>
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {matrix?.students.length === 0 && (
-            <div className="text-center py-8 text-brand-grey">No students in your department</div>
-          )}
-        </div>
+              </thead>
+              <tbody className="divide-y divide-brand-border">
+                {matrix?.students.map(student => (
+                  <tr key={student.id} className="hover:bg-brand-pale/20">
+                    <td className="px-4 py-2 font-medium text-brand-text sticky left-0 bg-white">{student.full_name}</td>
+                    {matrix.items.map(item => {
+                      const status = matrix.paymentMap.get(`${student.id}-${item.id}`)
+                      return (
+                        <td key={item.id} className="px-3 py-2 text-center">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs border font-medium ${statusColor(status)}`}>
+                            {status === 'successful' ? 'Paid' : status === 'pending' ? 'Pending' : 'Unpaid'}
+                          </span>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {/* Create Bill Dialog */}
@@ -248,9 +274,9 @@ export default function CourseRepPayments() {
               <Input className="mt-1" type="date" value={billForm.deadline} onChange={e => setBillForm(p => ({ ...p, deadline: e.target.value }))} />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button className="bg-brand-primary hover:bg-brand-secondary" onClick={handleCreateBill} disabled={saving}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary" onClick={handleCreateBill} disabled={saving}>
               {saving ? 'Creating...' : 'Create Bill'}
             </Button>
           </DialogFooter>

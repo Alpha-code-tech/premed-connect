@@ -123,6 +123,7 @@ export default function App() {
   const { profile } = useAuth()
 
   return (
+    <div className="overflow-x-hidden w-full">
     <Routes>
       {/* Landing page */}
       <Route path="/" element={<Landing />} />
@@ -245,5 +246,6 @@ export default function App() {
           : <Navigate to="/login" replace />
       } />
     </Routes>
+    </div>
   )
 }

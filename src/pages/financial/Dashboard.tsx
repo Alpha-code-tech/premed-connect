@@ -163,34 +163,58 @@ export default function FinancialDashboard() {
         {recentPayments?.payments.length === 0 ? (
           <p className="text-brand-grey text-sm">No transactions yet</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-brand-border text-brand-grey text-xs">
-                  <th className="text-left px-3 py-2 font-medium">Student</th>
-                  <th className="text-left px-3 py-2 font-medium">Department</th>
-                  <th className="text-left px-3 py-2 font-medium">Item</th>
-                  <th className="text-left px-3 py-2 font-medium">Amount</th>
-                  <th className="text-left px-3 py-2 font-medium">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentPayments?.payments.map(p => {
-                  const student = p.profiles as { full_name?: string; department_id?: string } | null
-                  const item = p.payment_items as { title?: string } | null
-                  return (
-                    <tr key={p.id} className="border-b border-brand-border last:border-0 hover:bg-brand-pale/30">
-                      <td className="px-3 py-2.5 font-medium text-brand-text">{student?.full_name}</td>
-                      <td className="px-3 py-2.5 text-brand-grey">{recentPayments.deptMap[student?.department_id ?? ''] || student?.department_id}</td>
-                      <td className="px-3 py-2.5 text-brand-text">{item?.title}</td>
-                      <td className="px-3 py-2.5 font-medium text-green-700">{formatCurrency(p.amount || 0)}</td>
-                      <td className="px-3 py-2.5 text-brand-grey">{formatDateShort(p.created_at)}</td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* ── Mobile cards ── */}
+            <div className="block md:hidden space-y-3">
+              {recentPayments?.payments.map(p => {
+                const student = p.profiles as { full_name?: string; department_id?: string } | null
+                const item = p.payment_items as { title?: string } | null
+                return (
+                  <div key={p.id} className="border border-brand-border rounded-lg p-3 space-y-1">
+                    <div className="flex justify-between items-center gap-2">
+                      <p className="font-semibold text-sm text-brand-text">{student?.full_name}</p>
+                      <p className="font-semibold text-sm text-green-700 shrink-0">{formatCurrency(p.amount || 0)}</p>
+                    </div>
+                    <p className="text-xs text-brand-grey">{recentPayments.deptMap[student?.department_id ?? ''] || student?.department_id || '—'}</p>
+                    <div className="flex justify-between text-xs text-brand-grey">
+                      <span>{item?.title}</span>
+                      <span>{formatDateShort(p.created_at)}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* ── Desktop table ── */}
+            <div className="hidden md:block overflow-x-auto max-w-full">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-brand-border text-brand-grey text-xs">
+                    <th className="text-left px-3 py-2 font-medium">Student</th>
+                    <th className="text-left px-3 py-2 font-medium">Department</th>
+                    <th className="text-left px-3 py-2 font-medium">Item</th>
+                    <th className="text-left px-3 py-2 font-medium">Amount</th>
+                    <th className="text-left px-3 py-2 font-medium">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentPayments?.payments.map(p => {
+                    const student = p.profiles as { full_name?: string; department_id?: string } | null
+                    const item = p.payment_items as { title?: string } | null
+                    return (
+                      <tr key={p.id} className="border-b border-brand-border last:border-0 hover:bg-brand-pale/30">
+                        <td className="px-3 py-2.5 font-medium text-brand-text">{student?.full_name}</td>
+                        <td className="px-3 py-2.5 text-brand-grey">{recentPayments.deptMap[student?.department_id ?? ''] || student?.department_id}</td>
+                        <td className="px-3 py-2.5 text-brand-text">{item?.title}</td>
+                        <td className="px-3 py-2.5 font-medium text-green-700">{formatCurrency(p.amount || 0)}</td>
+                        <td className="px-3 py-2.5 text-brand-grey">{formatDateShort(p.created_at)}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

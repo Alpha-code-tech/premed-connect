@@ -31,7 +31,7 @@ export default function DeveloperLayout() {
             <MobileSidebar items={navItems} onClose={() => setMobileOpen(false)} />
           </SheetContent>
         </Sheet>
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
           <Outlet />
         </main>
       </div>

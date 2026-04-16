@@ -192,49 +192,64 @@ export default function GovernorIssues() {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-brand-border overflow-x-auto">
-          <table className="w-full text-sm min-w-[600px]">
-            <thead className="bg-brand-pale border-b border-brand-border">
-              <tr>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Student</th>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Department</th>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Category</th>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Date</th>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Status</th>
-                <th className="text-left px-4 py-3 text-brand-grey font-medium">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-brand-border">
-              {filtered.map(issue => (
-                <tr key={issue.id} className="hover:bg-brand-pale/30 transition-colors">
-                  <td className="px-4 py-3 text-brand-text font-medium">
-                    {issue.profiles?.full_name ?? 'Unknown'}
-                  </td>
-                  <td className="px-4 py-3 text-brand-grey">
-                    {deptMap[issue.profiles?.department_id ?? ''] || '—'}
-                  </td>
-                  <td className="px-4 py-3 text-brand-grey">{issue.category}</td>
-                  <td className="px-4 py-3 text-brand-grey">{formatDate(issue.created_at)}</td>
-                  <td className="px-4 py-3">
-                    <Badge variant={statusBadgeVariant(issue.status) as 'success' | 'warning' | 'danger'}>
-                      {issue.status.replace('_', ' ')}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 text-xs"
-                      onClick={() => { setSelected(issue); setFeedback('') }}
-                    >
-                      View
-                    </Button>
-                  </td>
+        <>
+          {/* ── Mobile cards ── */}
+          <div className="block md:hidden space-y-3">
+            {filtered.map(issue => (
+              <div key={issue.id} className="bg-white border border-brand-border rounded-lg p-4 space-y-1.5">
+                <div className="flex justify-between items-center gap-2">
+                  <p className="font-semibold text-sm text-brand-text">{issue.profiles?.full_name ?? 'Unknown'}</p>
+                  <Badge variant={statusBadgeVariant(issue.status) as 'success' | 'warning' | 'danger'} className="shrink-0">
+                    {issue.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+                <p className="text-xs text-brand-grey">{deptMap[issue.profiles?.department_id ?? ''] || '—'}</p>
+                <p className="text-xs text-brand-grey">{issue.category} · {formatDate(issue.created_at)}</p>
+                <Button size="sm" variant="outline" className="h-8 text-xs w-full mt-1"
+                  onClick={() => { setSelected(issue); setFeedback('') }}>
+                  View Issue
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop table ── */}
+          <div className="hidden md:block bg-white rounded-lg border border-brand-border overflow-x-auto max-w-full">
+            <table className="w-full text-sm min-w-[600px]">
+              <thead className="bg-brand-pale border-b border-brand-border">
+                <tr>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Student</th>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Department</th>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Category</th>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Date</th>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Status</th>
+                  <th className="text-left px-4 py-3 text-brand-grey font-medium">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-brand-border">
+                {filtered.map(issue => (
+                  <tr key={issue.id} className="hover:bg-brand-pale/30 transition-colors">
+                    <td className="px-4 py-3 text-brand-text font-medium">{issue.profiles?.full_name ?? 'Unknown'}</td>
+                    <td className="px-4 py-3 text-brand-grey">{deptMap[issue.profiles?.department_id ?? ''] || '—'}</td>
+                    <td className="px-4 py-3 text-brand-grey">{issue.category}</td>
+                    <td className="px-4 py-3 text-brand-grey">{formatDate(issue.created_at)}</td>
+                    <td className="px-4 py-3">
+                      <Badge variant={statusBadgeVariant(issue.status) as 'success' | 'warning' | 'danger'}>
+                        {issue.status.replace('_', ' ')}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Button size="sm" variant="outline" className="h-7 text-xs"
+                        onClick={() => { setSelected(issue); setFeedback('') }}>
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       <Dialog open={!!selected} onOpenChange={handleClose}>

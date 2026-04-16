@@ -96,34 +96,54 @@ export default function GovernorDepartments() {
             <p className="text-brand-grey text-sm">No members found</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-brand-border text-brand-grey text-xs">
-                  <th className="text-left px-4 py-2 font-medium">Name</th>
-                  <th className="text-left px-4 py-2 font-medium">Student ID</th>
-                  <th className="text-left px-4 py-2 font-medium">Email</th>
-                  <th className="text-left px-4 py-2 font-medium">Department</th>
-                  <th className="text-left px-4 py-2 font-medium">Role</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered?.map(s => (
-                  <tr key={s.id} className="border-b border-brand-border last:border-0 hover:bg-brand-pale/30">
-                    <td className="px-4 py-3 font-medium text-brand-text">{s.full_name}</td>
-                    <td className="px-4 py-3 text-brand-grey">{s.student_id || 'N/A'}</td>
-                    <td className="px-4 py-3 text-brand-grey">{s.email}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant="outline" className="text-xs">{deptMap[s.department_id ?? ''] || s.department_id}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant="secondary" className="text-xs capitalize">{s.role?.replace(/_/g, ' ')}</Badge>
-                    </td>
+          <>
+            {/* ── Mobile cards ── */}
+            <div className="block md:hidden p-3 space-y-3">
+              {filtered?.map(s => (
+                <div key={s.id} className="bg-white border border-brand-border rounded-lg p-4 space-y-1.5">
+                  <div className="flex justify-between items-center gap-2">
+                    <p className="font-semibold text-sm text-brand-text">{s.full_name}</p>
+                    <Badge variant="secondary" className="text-xs capitalize shrink-0">{s.role?.replace(/_/g, ' ')}</Badge>
+                  </div>
+                  <p className="text-xs text-brand-grey truncate">{s.email}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-brand-grey">{s.student_id || 'N/A'}</span>
+                    <Badge variant="outline" className="text-xs">{deptMap[s.department_id ?? ''] || s.department_id}</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Desktop table ── */}
+            <div className="hidden md:block overflow-x-auto max-w-full">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-brand-border text-brand-grey text-xs">
+                    <th className="text-left px-4 py-2 font-medium">Name</th>
+                    <th className="text-left px-4 py-2 font-medium">Student ID</th>
+                    <th className="text-left px-4 py-2 font-medium">Email</th>
+                    <th className="text-left px-4 py-2 font-medium">Department</th>
+                    <th className="text-left px-4 py-2 font-medium">Role</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filtered?.map(s => (
+                    <tr key={s.id} className="border-b border-brand-border last:border-0 hover:bg-brand-pale/30">
+                      <td className="px-4 py-3 font-medium text-brand-text">{s.full_name}</td>
+                      <td className="px-4 py-3 text-brand-grey">{s.student_id || 'N/A'}</td>
+                      <td className="px-4 py-3 text-brand-grey max-w-[180px] truncate">{s.email}</td>
+                      <td className="px-4 py-3">
+                        <Badge variant="outline" className="text-xs">{deptMap[s.department_id ?? ''] || s.department_id}</Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant="secondary" className="text-xs capitalize">{s.role?.replace(/_/g, ' ')}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>
