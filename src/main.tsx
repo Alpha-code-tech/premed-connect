@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext.tsx'
 import { ViewModeProvider } from './context/ViewModeContext.tsx'
 import { ThemeProvider } from './context/ThemeContext.tsx'
 import { Toaster } from './components/ui/toaster.tsx'
+import { Analytics } from '@vercel/analytics/react'
 
 const queryClient = new QueryClient({
   defaultOptions: {
