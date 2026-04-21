@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -29,7 +29,6 @@ export default function RequestAccess() {
   const [submitted, setSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [departments, setDepartments] = useState<Department[]>([])
-  const loadTimeRef = useRef(Date.now())
   const { toast } = useToast()
 
   useEffect(() => {
@@ -46,34 +45,41 @@ export default function RequestAccess() {
   const onSubmit = async (data: RequestFormData) => {
     setIsLoading(true)
     try {
-      const { error: fnError } = await supabase.functions.invoke('submit-access-request', {
-        body: {
-          full_name: data.full_name,
-          department_id: data.department_id,
-          matriculation_number: data.matriculation_number,
-          gmail: data.gmail,
-          _h: '',          // Honeypot field — always empty for real users
-          _t: loadTimeRef.current, // Page load timestamp for bot timing detection
-        },
-      })
+      const gmail = data.gmail.trim().toLowerCase()
 
-      if (fnError) {
-        let description = fnError.message
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const ctx = (fnError as any).context
-          const body = ctx instanceof Response
-            ? await ctx.clone().json()
-            : typeof ctx?.json === 'function' ? await ctx.json() : null
-          if (body?.error) description = body.error
-        } catch { /* ignore parse errors */ }
-        toast({ title: 'Submission failed', description, variant: 'destructive' })
+      // Check for existing pending or approved request
+      const { data: existing } = await supabase
+        .from('access_requests')
+        .select('id, status')
+        .eq('gmail', gmail)
+        .in('status', ['pending', 'approved'])
+        .maybeSingle()
+
+      if (existing) {
+        toast({
+          title: 'Already submitted',
+          description: existing.status === 'approved'
+            ? 'An account already exists for this email address.'
+            : 'A pending request already exists for this email address.',
+          variant: 'destructive',
+        })
         return
       }
 
+      const { error } = await supabase.from('access_requests').insert({
+        full_name: data.full_name.trim(),
+        department_id: data.department_id,
+        matriculation_number: data.matriculation_number.trim(),
+        gmail,
+        status: 'pending',
+      })
+
+      if (error) throw error
+
       setSubmitted(true)
-    } catch {
-      toast({ title: 'Submission failed', description: 'Could not submit your request. Please try again.', variant: 'destructive' })
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Could not submit your request. Please try again.'
+      toast({ title: 'Submission failed', description: message, variant: 'destructive' })
     } finally {
       setIsLoading(false)
     }
