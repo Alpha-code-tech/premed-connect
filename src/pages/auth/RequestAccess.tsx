@@ -146,7 +146,7 @@ export default function RequestAccess() {
               <FormField control={form.control} name="matriculation_number" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Matriculation Number</FormLabel>
-                  <FormControl><Input placeholder="e.g. MLS/2021/001" {...field} /></FormControl>
+                  <FormControl><Input placeholder="Matriculation number" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
