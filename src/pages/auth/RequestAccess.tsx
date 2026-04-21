@@ -61,7 +61,10 @@ export default function RequestAccess() {
         let description = fnError.message
         try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const body = await (fnError as any).context?.json?.()
+          const ctx = (fnError as any).context
+          const body = ctx instanceof Response
+            ? await ctx.clone().json()
+            : typeof ctx?.json === 'function' ? await ctx.json() : null
           if (body?.error) description = body.error
         } catch { /* ignore parse errors */ }
         toast({ title: 'Submission failed', description, variant: 'destructive' })

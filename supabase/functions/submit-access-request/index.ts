@@ -7,13 +7,13 @@ const APP_URL = Deno.env.get('APP_URL') ?? 'http://localhost:5173'
 function corsHeaders(req: Request) {
   const origin = req.headers.get('origin') ?? ''
   const isAllowed =
-    origin === APP_URL ||
+    origin.startsWith('https://') ||
     origin === 'http://localhost:5173' ||
-    origin === 'http://localhost:3000' ||
-    origin.endsWith('.vercel.app')
+    origin === 'http://localhost:3000'
   return {
     'Access-Control-Allow-Origin': isAllowed ? origin : APP_URL,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   }
 }
 
@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     const ip = getClientIp(req)
 
     // IP rate limit: 5 submissions per hour per IP (prevents spam bots)
-    const allowed = await checkIpRateLimit(supabaseAdmin, ip, 'submit-access-request', 5, 60)
+    const allowed = await checkIpRateLimit(supabaseAdmin, ip, 'submit-access-request', 20, 60)
     if (!allowed) {
       return new Response(
         JSON.stringify({ error: 'Too many requests from this network. Please try again later.' }),
