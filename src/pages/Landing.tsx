@@ -151,7 +151,7 @@ function Hero() {
             </Button>
             <Button asChild size="lg"
               className="rounded-full bg-white/15 border border-white/40 text-white hover:bg-white/25 px-8">
-              <a href="#features">Explore Features</a>
+              <Link to="/onboarding">How it Works</Link>
             </Button>
           </div>
         </motion.div>

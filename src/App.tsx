@@ -5,6 +5,7 @@ import { ROLE_ROUTES } from '@/lib/constants'
 
 // Landing page
 import Landing from '@/pages/Landing'
+import Onboarding from '@/pages/Onboarding'
 
 // Auth pages
 import Login from '@/pages/auth/Login'
@@ -127,6 +128,7 @@ export default function App() {
     <Routes>
       {/* Landing page */}
       <Route path="/" element={<Landing />} />
+      <Route path="/onboarding" element={<Onboarding />} />
 
       {/* Public routes */}
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
